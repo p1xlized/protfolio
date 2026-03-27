@@ -1,0 +1,99 @@
+/* apps/web/src/styles.css */
+@import "tailwindcss";
+@import "../../../packages/styles/theme.css";
+@source "../../packages/ui/src/**/*.tsx";
+@source "../../../packages/ui/src/**/*.tsx";
+@source "./src/**/*.tsx";
+
+@import "@fontsource-variable/jetbrains-mono";
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Layout & Backgrounds */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Brand Colors */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Wireframes */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Typography & Radius */
+  --font-sans: var(--font-mono);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-mono);
+  --radius-lg: var(--radius);
+
+  /* CRT Glow Utilities */
+  --shadow-glow: 0px 0px 20px -5px var(--primary);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    /* Force monospace globally for the TUI aesthetic */
+    font-family: var(--font-mono) !important;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-500;
+  }
+
+  /* Sub-pixel rendering for high-quality mono text */
+  h1,
+  h2,
+  h3,
+  h4,
+  button,
+  p,
+  span {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.02em;
+  }
+
+  /* Custom Selection Color (Phosphor Teal) */
+  ::selection {
+    @apply bg-primary/30 text-primary-foreground;
+  }
+}
+
+/* Custom Cursor Logic - Prevents "Ghosting" on Mobile */
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
+.no-js * {
+  cursor: auto;
+}
+/* Hide system cursor ONLY if the user has a mouse/fine pointer */
+@media (pointer: fine) {
+  .body-custom-cursor {
+    cursor: none !important;
+  }
+}
+
+/* If it's a touch device (iPad/Phone), show the standard cursor or hide the custom one */
+@media (pointer: coarse) {
+  .custom-cursor-element {
+    display: none !important;
+  }
+}

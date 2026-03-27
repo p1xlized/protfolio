@@ -1,0 +1,15 @@
+{
+  "extends": "../../packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@portfolio/ui": ["../../packages/ui/src/index.ts"],
+      "@portfolio/ui/*": ["../../packages/ui/src/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts", "src/**/*.tsx", "src/**/*.ts"]
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "../../packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+
+    "paths": {
+      "@/*": ["./src/*"],
+      "@portfolio/ui": ["./src/index.ts"],
+      "@portfolio/ui/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}

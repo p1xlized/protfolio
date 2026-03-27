@@ -1,0 +1,25 @@
+{
+  "name": "@portfolio/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --env-file=../../.env --watch src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
+    "typecheck": "tsc --noEmit",
+    "with-env": "bun --env-file=../../.env --"
+  },
+  "dependencies": {
+    "elysia": "latest",
+    "@elysiajs/cors": "latest",
+
+    "drizzle-orm": "latest",
+    "@portfolio/db": "workspace:*",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@portfolio/config": "workspace:*",
+    "@types/bun": "latest",
+    "typescript": "^5.8.3"
+  }
+}

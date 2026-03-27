@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* 1. Explicitly scan your UI components */
+@source "../../../packages/ui/src/**/*.tsx";
+@source "./src/**/*.tsx";
+
+/* 2. Import the UI styles as a REFERENCE */
+/* This pulls in the variables/theme without doubling the CSS weight */
+@reference "../../../packages/ui/src/styles.css";
+
+/* Import your shared theme variables from the root or UI package */
+@import "../../../packages/ui/src/styles.css";
+
+@theme inline {
+  /* Add any blog-specific overrides here if needed */
+}

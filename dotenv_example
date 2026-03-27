@@ -1,0 +1,8 @@
+# Hacky way to set environment variables for the app bcs bun issues with dotenv
+ROOT_DIR=/home/alex/Development/projects/protfolio
+DATABASE_URL="file:$ROOT_DIR/packages/db/local.db"
+
+DATABASE_AUTH_TOKEN=""
+SESSION_SECRET="super-duper-s3cret"
+
+VITE_API_URL=http://localhost:7000/api

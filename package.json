@@ -1,0 +1,36 @@
+{
+  "name": "portfolio-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "bun --filter \"*\" dev",
+    "dev:web": "bun --filter @portfolio/web dev",
+    "dev:api": "bun --filter @portfolio/api dev",
+    "dev:blog": "bun --filter @portfolio/blog dev",
+    "db:generate": "bun --filter @portfolio/db generate",
+    "db:push": "bun --filter @portfolio/db push",
+    "db:studio": "bun --filter @portfolio/db studio",
+    "db:seed": "bun --filter @portfolio/db seed",
+    "format": "biome format . --write",
+    "lint": "biome lint .",
+    "check": "biome check --apply .",
+    "typecheck": "bun --filter \"*\" typecheck"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.8",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@tanstack/react-devtools": "^0.10.0",
+    "web": "^0.0.2"
+  },
+  "overrides": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "drizzle-orm": "0.45.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "extends": "../../packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["bun"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@portfolio/db": ["./src/index.ts"],
+      "@portfolio/db/client": ["./src/client.ts"],
+      "@portfolio/db/schema": ["./src/schema.ts"]
+    }
+  },
+  "include": ["src", "drizzle.config.ts"]
+}

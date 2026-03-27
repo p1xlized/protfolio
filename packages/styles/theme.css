@@ -1,0 +1,50 @@
+/* packages/config/theme.css */
+:root {
+    /* LIGHT THEME - OKLCH */
+    --background: oklch(0.9842 0.0034 247.8575);
+    --foreground: oklch(0.3013 0.024 238.809);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.3193 0.0228 209.5983);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.3249 0.0245 200.142);
+    --primary: oklch(0.52 0.049 147.7951);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.9276 0.0058 264.5313);
+    --secondary-foreground: oklch(0.407 0.0296 173.182);
+    --muted: oklch(0.967 0.0029 264.5419);
+    --muted-foreground: oklch(0.3025 0.0164 156.1138);
+    --accent: oklch(0.9181 0.0477 145.1734);
+    --accent-foreground: oklch(0.4091 0.0226 200.5214);
+    --destructive: oklch(0.5664 0.2031 32.6994);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.8717 0.0093 258.3382);
+    --input: oklch(0.9163 0.025 143.4909);
+    --ring: oklch(0.7099 0.0954 147.5011);
+    --font-mono: "JetBrains Mono", monospace;
+    --radius: 0.15rem;
+}
+
+.dark {
+    /* DARK THEME - PHOSPHOR/TUI VARIANT */
+    --background: oklch(0.18 0.02 260);
+    --foreground: oklch(0.98 0.01 180);
+    --card: oklch(0.22 0.015 260);
+    --card-foreground: oklch(0.98 0.01 180);
+    --popover: oklch(0.2 0.01 260);
+    --popover-foreground: oklch(0.95 0.03 180);
+    --primary: oklch(0.8556 0.1555 179.7932);
+    --primary-foreground: oklch(0.18 0.02 260);
+    --muted: oklch(0.25 0.02 260);
+    --muted-foreground: oklch(0.75 0.03 180);
+    --secondary: oklch(0.28 0.03 260);
+    --secondary-foreground: oklch(0.95 0.02 180);
+    --accent: oklch(0.3 0.05 180);
+    --accent-foreground: oklch(0.98 0.01 180);
+    --border: oklch(0.35 0.03 180 / 0.4);
+    --input: oklch(0.25 0.02 180);
+    --ring: var(--primary);
+    --sidebar: oklch(0.18 0.02 260);
+    --sidebar-foreground: oklch(0.8 0.03 180);
+    --sidebar-primary: var(--primary);
+    --sidebar-border: oklch(0.3 0.02 180 / 0.5);
+}
