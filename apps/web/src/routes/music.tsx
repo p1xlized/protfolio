@@ -25,7 +25,17 @@ import {
   Eye,
   Timer,
   FileCode,
-  Target
+  Target,
+  Disc,
+  ArrowUpRight,
+  Waves,
+  CaretUp,
+  SkipForward,
+  CaretDown,
+  SkipBack,
+  Play,
+  ArrowLeft,
+  SpeakerHigh
 } from "@phosphor-icons/react"
 import {
   Dialog,
@@ -153,138 +163,68 @@ export function PageBackground() {
 
 export function AlbumFolder({ album, isHovered, onHover }: any) {
   return (
-    <div
+    <motion.div
       className="relative group cursor-crosshair"
       onMouseEnter={() => onHover(album)}
-      onClick={() => onHover(album)}
+      whileHover="hover"
+      initial="initial"
     >
       <div className={`
-        relative aspect-square border transition-all duration-700 p-6 flex flex-col items-center justify-center gap-4 overflow-hidden
-        ${isHovered ? 'border-primary/40 bg-primary/[0.04]' : 'border-primary/5 bg-transparent'}
+        relative aspect-[3/4] border transition-all duration-500 flex flex-col p-4 overflow-hidden
+        ${isHovered
+          ? 'border-primary bg-primary/10 shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)]'
+          : 'border-primary/10 bg-background/40'}
       `}>
 
-        {/* --- 1. SVG ORBITAL BACKGROUND ANIMATION (Hover Triggered) --- */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.6, ease: "circOut" }}
-              className="absolute inset-0 pointer-events-none -z-10 flex items-center justify-center p-4 opacity-[0.05]"
-            >
-              <motion.svg
-                viewBox="0 0 100 100"
-                className="size-full text-primary"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              >
-                {/* Fixed Wireframe Sphere */}
-                <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" strokeDasharray="2 2" />
-                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.3" />
-
-                {/* Rotating Latitude/Longitude Lines */}
-                {[...Array(4)].map((_, i) => (
-                  <ellipse
-                    key={i}
-                    cx="50" cy="50"
-                    rx="45" ry={10 + i * 10}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.1"
-                  />
-                ))}
-
-                {/* "Data Packets" Orbiting the sphere */}
-                {[...Array(3)].map((_, i) => (
-                  <motion.circle
-                    key={`packet-${i}`}
-                    cx="50"
-                    cy="50"
-                    r="4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.2"
-                    animate={{ rx: [40, 55, 40], ry: [15, 25, 15], rotate: [0, 360] }}
-                    transition={{ duration: 6 + i * 2, repeat: Infinity, ease: "linear" }}
-                  />
-                ))}
-              </motion.svg>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* --- 2. DYNAMIC CORNER LABELS (Only on Hover) --- */}
-
-        {/* Top-Left: Track Counter */}
-        <div className={`absolute top-2 left-2 transition-all duration-500 flex items-center gap-1.5 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}>
-           <ChartBar size={10} className="text-primary/40" />
-           <span className="text-[7px] text-primary/60 uppercase tracking-tighter">TRK_{album.tracks || '12'}</span>
-        </div>
-
-        {/* Top-Right: Status Activity */}
-        <div className="absolute top-2 right-2 flex items-center gap-1">
-           <span className={`text-[6px] uppercase text-primary/20 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}>Node_Access</span>
-           <CassetteTapeIcon size={10} className={`transition-colors ${isHovered ? 'text-primary animate-pulse' : 'text-primary/10'}`} />
-        </div>
-
-        {/* Bottom-Left: Hex ID */}
-        <div className={`absolute bottom-2 left-2 transition-all duration-500 ${isHovered ? 'opacity-40 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-          <span className="text-[7px] text-primary tracking-[0.2em]">0x{album.id.toString(16).toUpperCase()}</span>
-        </div>
-
-        {/* Bottom-Right: Bitrate Metadata */}
-        <div className={`absolute bottom-2 right-2 transition-all duration-700 flex items-center gap-1 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}`}>
-           <Cpu size={10} className="text-primary/30" />
-           <span className="text-[7px] text-primary/40 uppercase tracking-tighter">320kbps_vbr</span>
-        </div>
-
-        {/* --- 3. MAIN CONTENT --- */}
-        <div className="relative z-10 flex flex-col items-center gap-3">
-          <div className="relative">
-            {/* The icon is now static, but scales slightly on hover */}
-            <MusicNotes
-              size={32}
-              weight={isHovered ? "fill" : "thin"}
-              className={`transition-all duration-500 ${isHovered ? 'text-primary/70 scale-110' : 'text-primary/10'}`}
-            />
-
-            {/* Soft bloom behind icon */}
-            <AnimatePresence>
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 0.4, scale: 1.2 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-primary/20 blur-2xl rounded-full -z-10"
-                />
-              )}
-            </AnimatePresence>
+        {/* --- UNIT IDENTIFIER --- */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1.5">
+            <div className={`size-1 rotate-45 ${isHovered ? 'bg-primary shadow-[0_0_8px_var(--primary)]' : 'bg-primary/20'}`} />
+            <span className="text-[7px] font-black tracking-[0.3em] text-primary/60 uppercase">
+              Unit_{album.id?.toString().padStart(3, '0')}
+            </span>
           </div>
-
-          <span className="text-[9px] uppercase tracking-[0.3em] text-center opacity-30 group-hover:opacity-100 transition-all duration-500 leading-tight">
-            {album.title}
-          </span>
+          <GraphIcon size={10} className={isHovered ? "text-primary animate-pulse" : "text-primary/20"} />
         </div>
 
-        {/* --- 4. MOBILE TOOLTIP --- */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="lg:hidden absolute -bottom-1 left-0 right-0 z-50 bg-background/95 border-t border-primary/20 p-2 text-[7px] uppercase tracking-tighter backdrop-blur-md"
-            >
-              <div className="flex justify-between items-center">
-                <p className="text-primary truncate">{album.title}</p>
-                <p className="opacity-40">{album.year}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* --- MEDIA CORE --- */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 relative">
+          <motion.div
+            variants={{
+              initial: { scale: 1, rotate: 0 },
+              hover: { scale: 1.1, rotate: 90 }
+            }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className={`${isHovered ? 'text-primary' : 'text-primary/10'}`}
+          >
+            <Disc size={56} weight={isHovered ? "duotone" : "thin"} />
+          </motion.div>
+
+          <div className="text-center space-y-1">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">
+              {album.title}
+            </h3>
+            <span className="text-[6px] text-primary/30 uppercase tracking-[0.4em]">Metadata_Locked</span>
+          </div>
+        </div>
+
+        {/* --- SPECS FOOTER --- */}
+        <div className="mt-auto pt-2 border-t border-primary/10 flex items-center justify-between text-[7px] font-mono text-primary/40 uppercase">
+          <span>{album.year} // {album.format}</span>
+          <div className="flex gap-0.5">
+             {[...Array(3)].map((_, i) => (
+               <div key={i} className={`w-2 h-0.5 ${isHovered ? 'bg-primary' : 'bg-primary/10'}`} />
+             ))}
+          </div>
+        </div>
+
+        {/* Scanning Line */}
+        <motion.div
+          variants={{ initial: { scaleX: 0 }, hover: { scaleX: 1 } }}
+          className="absolute bottom-0 left-0 h-[2px] w-full bg-primary origin-left"
+        />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -407,29 +347,16 @@ export function MetadataInspector({ album }: any) {
     </AnimatePresence>
   )
 }
-/* --- 3. MAIN PAGE COMPONENT --- */
-export default function MusicPage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [hoveredAlbum, setHoveredAlbum] = useState<any | null>(null)
-  const [time, setTime] = useState("")
-  const issueDate = "2024.03.15"
 
+
+export default function MusicPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hoveredAlbum, setHoveredAlbum] = useState<any | null>(null);
+  const [time, setTime] = useState("");
   const albums = Route.useLoaderData();
 
-  const ALBUMS = useMemo(() => albums.map(item => ({
-    ...item,
-    id_ref: `REF-${item.id.toString().padStart(2, '0')}`,
-    title: item.name.toUpperCase(),
-    artist: item.profileId.replace('_', '.').toUpperCase(),
-    year: new Date(item.releaseDate).getFullYear().toString(),
-    size: `${(Math.random() * 150 + 50).toFixed(0)}MB`,
-    // Mocking durations and tracks for the metadata inspector
-    tracks: Math.floor(Math.random() * 8) + 10,
-    duration: `${Math.floor(Math.random() * 20) + 30}:${Math.floor(Math.random() * 59).toString().padStart(2, '0')}`
-  })), [albums]);
-
   useEffect(() => {
-    const updateTime = () => setTime(new Date().toLocaleTimeString("en-GB", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    const updateTime = () => setTime(new Date().toLocaleTimeString("en-GB", { hour12: false }));
     updateTime();
     const interval = setInterval(updateTime, 1000);
     const timer = setTimeout(() => setIsLoading(false), 800);
@@ -437,127 +364,112 @@ export default function MusicPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full font-mono flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden bg-background selection:bg-primary selection:text-primary-foreground">
+    <div className="relative min-h-screen w-full font-mono flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden bg-background/10">
       <PageBackground />
 
       <AnimatePresence>
         {!isLoading && (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 15, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              className="relative z-10 w-full max-w-6xl h-[85vh] md:h-[750px] border border-primary/10 bg-background/40 backdrop-blur-md shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden"
-            >
-              {/* EXTERNAL FRAME DECORATIONS */}
-              <div className="absolute top-2 left-2 size-1 bg-primary/20" />
-              <div className="absolute top-2 right-2 size-1 bg-primary/20" />
-              <div className="absolute bottom-2 left-2 size-1 bg-primary/20" />
-              <div className="absolute bottom-2 right-2 size-1 bg-primary/20" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.99 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative z-10 w-full max-w-7xl h-[85vh] md:h-[820px] flex border border-primary/10 bg-background shadow-2xl overflow-hidden"
+          >
+            {/* --- HARDWARE DECOR: CORNER PINS --- */}
+            <div className="absolute top-2 left-2 size-1 bg-primary/40 rounded-full" />
+            <div className="absolute top-2 right-2 size-1 bg-primary/40 rounded-full" />
+            <div className="absolute bottom-2 left-2 size-1 bg-primary/40 rounded-full" />
+            <div className="absolute bottom-2 right-2 size-1 bg-primary/40 rounded-full" />
 
-              {/* HEADER - 60% Opacity */}
-              <div className="h-10 border-b border-primary/10 bg-background/60 px-6 flex items-center justify-between shrink-0 text-[10px] uppercase tracking-[0.3em]">
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
-                    <span className="text-foreground/90 font-medium">Media_Archive</span>
-                  </div>
-                  <div className="hidden md:flex items-center gap-3 opacity-40">
-                    <Cpu size={14} />
-                    <span className="text-[8px]">Node_Active: 0xCF2</span>
-                  </div>
-                </div>
-                <div className="hidden xs:flex items-center gap-4 text-primary/40 tracking-widest">
-                  <span className="flex items-center gap-2"><Target size={14} /> Tracking_Link</span>
-                  <div className="h-3 w-[1px] bg-primary/10" />
-                  <span className="flex items-center gap-2"><Clock size={14}/> {time}</span>
-                </div>
-              </div>
-
-              {/* CONTENT AREA */}
-              <div className="flex-1 flex overflow-hidden relative">
-
-                {/* 1. LEFT DATA GUTTER (Vertical Hex Stream) */}
-                <div className="hidden md:flex flex-col w-8 border-r border-primary/5 bg-background/20 py-4 items-center gap-4 overflow-hidden select-none pointer-events-none">
-                  {[...Array(12)].map((_, i) => (
-                    <span key={i} className="text-[6px] text-primary/20 [writing-mode:vertical-lr] uppercase tracking-widest font-mono">
-                      0x{((i + 1) * 255).toString(16).toUpperCase()}
-                    </span>
+            {/* --- 1. UTILITY SIDEBAR (Left) --- */}
+            <aside className="w-14 md:w-16 border-r border-primary/10 flex flex-col items-center py-10 gap-12 bg-primary/[0.02]">
+               <div className="flex flex-col gap-1 opacity-20">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="w-4 h-[1px] bg-primary" />
                   ))}
-                </div>
+               </div>
 
-                {/* 2. MAIN GRID AREA */}
-                <div className="flex-1 p-6 md:p-10 overflow-y-auto custom-scrollbar bg-background/40 relative">
-                  {/* Internal Grid Corner Brackets */}
-                  <div className="absolute top-4 left-4 size-3 border-t border-l border-primary/10" />
-                  <div className="absolute bottom-4 right-4 size-3 border-b border-r border-primary/10" />
+               <div className="[writing-mode:vertical-lr] text-[9px] uppercase tracking-[0.6em] text-primary/40 font-black">
+                 Audio_Master_Console
+               </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {ALBUMS.map((album) => (
-                      <AlbumFolder
-                        key={album.id}
-                        album={album}
-                        isHovered={hoveredAlbum?.id === album.id}
-                        onHover={setHoveredAlbum}
-                      />
-                    ))}
+               <div className="mt-auto space-y-6 pb-4">
+                  <SpeakerHigh size={18} className="text-primary/20" />
+                  <div className="flex flex-col gap-1 items-center">
+                    <div className="size-1.5 bg-primary/60 rounded-full animate-pulse" />
+                    <div className="size-1 bg-primary/20 rounded-full" />
                   </div>
-                </div>
+               </div>
+            </aside>
 
-                {/* 3. METADATA SIDEBAR WITH FRAME DECOR */}
-                <div className="hidden lg:block w-[380px] border-l border-primary/10 bg-background/60 backdrop-blur-sm relative">
-                  {/* Sidebar Analysis HUD Decor */}
-                  <div className="absolute top-0 right-0 h-full w-[1px] bg-gradient-to-b from-transparent via-primary/10 to-transparent" />
+            {/* --- 2. THE MAIN GRID AREA --- */}
+            <main className="flex-1 p-8 md:p-10 overflow-y-auto custom-scrollbar relative">
+               {/* Background Watermark */}
+               <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none">
+                  <Waves size={500} />
+               </div>
 
-                  {/* Sidebar Top Status */}
-                  <div className="absolute top-2 right-4 flex items-center gap-2 opacity-20">
-                    <span className="text-[6px] uppercase tracking-[0.2em] text-primary">Inspector_Active</span>
-                    <div className="size-1 rounded-full bg-primary" />
+               <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 relative z-10">
+                  {albums.map((album: any) => (
+                    <AlbumFolder
+                      key={album.id}
+                      album={album}
+                      isHovered={hoveredAlbum?.id === album.id}
+                      onHover={setHoveredAlbum}
+                    />
+                  ))}
+               </div>
+            </main>
+
+            {/* --- 3. THE INSPECTOR PANEL (Right) --- */}
+            <aside className="hidden lg:flex flex-col w-[360px] border-l border-primary/10 bg-primary/[0.01] p-8 space-y-10">
+               {/* Digital Clock / Status */}
+               <div className="flex justify-between items-center border-b border-primary/10 pb-6">
+                  <div className="flex items-center gap-2">
+                     <Cpu size={14} className="text-primary/60" />
+                     <span className="text-[9px] font-black uppercase tracking-widest text-primary/60">Node_01</span>
                   </div>
+                  <span className="text-[10px] font-mono text-primary">{time}</span>
+               </div>
 
+               {/* Inspector Content */}
+               <div className="flex-1 space-y-8">
                   <MetadataInspector album={hoveredAlbum} />
 
-                  {/* Sidebar Bottom Coordinates */}
-                  <div className="absolute bottom-2 left-4 text-[6px] text-primary/20 uppercase tracking-[0.4em]">
-                    LOC_42.88 // SEC_B
+                  {/* Decorative Logic Display */}
+                  <div className="p-4 border border-primary/10 bg-black/20 space-y-4">
+                     <div className="flex justify-between text-[8px] text-primary/40 uppercase tracking-widest">
+                        <span>Frequency_Analysis</span>
+                        <span>Level: 0.4db</span>
+                     </div>
+                     <div className="flex items-end gap-1 h-12">
+                        {[...Array(20)].map((_, i) => (
+                           <motion.div
+                             key={i}
+                             animate={{ height: [`${20 + Math.random() * 80}%`, `${20 + Math.random() * 80}%`] }}
+                             transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                             className="flex-1 bg-primary/40"
+                           />
+                        ))}
+                     </div>
                   </div>
-                </div>
-              </div>
+               </div>
 
-              {/* FOOTER - 60% Opacity */}
-              <div className="h-10 border-t border-primary/10 bg-background/60 px-6 flex items-center justify-between shrink-0 text-[8px] uppercase tracking-[0.3em] text-primary/30">
-                <div className="flex gap-10">
-                  <span className="flex items-center gap-2">
-                    <Calendar size={14} className="opacity-40"/> Cycle: {issueDate}
-                  </span>
-                  <span className="hidden sm:flex items-center gap-2 italic">
-                    <GraphIcon size={14} className="opacity-40"/> Status: Established
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <span className="text-[7px] tracking-[0.5em] opacity-40">Uplink_Progress</span>
-                  <div className="h-[1px] w-24 md:w-48 bg-primary/10 overflow-hidden relative">
-                    <motion.div
-                      animate={{ x: ["-100%", "100%"] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                      className="h-full bg-primary/40 shadow-[0_0_8px_var(--primary)]"
-                    />
+               {/* Hardware Manufacturer Branding */}
+               <div className="pt-6 border-t border-primary/10 flex justify-between items-center opacity-40">
+                  <div className="flex flex-col">
+                    <span className="text-[7px] uppercase tracking-tighter">System_Spec</span>
+                    <span className="text-[9px] font-bold">CORE_ARCHIVE_X</span>
                   </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* EXTERNAL SYSTEM SPECS */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 z-20"
-            >
-              <MusicDialog />
-            </motion.div>
-          </>
+                  <HardDrive size={20} weight="thin" />
+               </div>
+            </aside>
+          </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="mt-8 z-20">
+        <MusicDialog />
+      </div>
     </div>
-  )
+  );
 }

@@ -4,21 +4,32 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import {
+  ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
+  CaretDown,
   CaretLeft,
   CaretRight,
+  ChartBar,
   CircleHalfIcon,
+  Code,
   Cpu,
   Database,
+  FadersHorizontal,
   GithubLogo,
   Globe,
   GraphIcon,
+  HardDrive,
   Medal,
   Receipt,
   ShieldCheck,
+  SortAscending,
+  SortDescending,
   Target,
   Trophy,
+  User,
 } from "@phosphor-icons/react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@portfolio/ui/components/ui/collapsible"
 
 import { hideNavbar, showNavbar } from "@/lib/store"
 import { cn } from "@/lib/utils"
@@ -122,7 +133,164 @@ export function PageBackground() {
     </div>
   );
 }
+interface ProjectFiltersProps {
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
+  sortOrder: "ASC" | "DESC";
+  setSortOrder: (val: "ASC" | "DESC") => void;
+  workType: "ALL" | "PERSONAL" | "FREELANCE";
+  setWorkType: (val: "ALL" | "PERSONAL" | "FREELANCE") => void;
+  filter: string;
+  setFilter: (val: string) => void;
+}
 
+
+export function ProjectFilters({
+  searchQuery,
+  setSearchQuery,
+  sortOrder,
+  setSortOrder,
+  workType,
+  setWorkType,
+  filter,
+  setFilter,
+}: ProjectFiltersProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Reusable Section Label for that HUD look
+  const SectionLabel = ({ label, icon: Icon }: { label: string; icon?: any }) => (
+    <div className="flex items-center gap-2 mb-4">
+      {Icon && <Icon size={12} className="text-primary animate-pulse" />}
+      <span className="text-[10px] uppercase tracking-[0.4em] text-primary/80 font-bold">
+        {label}
+      </span>
+    </div>
+  );
+
+  const FilterContent = (
+    <div className="space-y-10 pt-4 lg:pt-0">
+      {/* 1. SEARCH MODULE WITH DECORATION */}
+      <div className="space-y-3">
+        <SectionLabel label="Search_Query" icon={Target} />
+        <div className="relative group">
+          {/* Decorative Brackets */}
+          <div className="absolute -top-1 -left-1 size-2 border-t border-l border-primary/40 group-focus-within:border-primary transition-colors" />
+          <div className="absolute -bottom-1 -right-1 size-2 border-b border-r border-primary/40 group-focus-within:border-primary transition-colors" />
+
+          <input
+            type="text"
+            placeholder="INPUT_STRING..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-primary/[0.05] border border-primary/20 p-3 text-[11px] uppercase tracking-widest text-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all placeholder:text-primary/20"
+          />
+        </div>
+      </div>
+
+      {/* 2. SEQUENCE ORDER (ICON TOGGLE) */}
+      <div className="space-y-3">
+        <SectionLabel label="Sequence" />
+        <div className="flex gap-2">
+          {[
+            { id: "DESC", icon: SortDescending, label: "New" },
+            { id: "ASC", icon: SortAscending, label: "Old" }
+          ].map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setSortOrder(s.id as "ASC" | "DESC")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 border transition-all ${
+                sortOrder === s.id
+                ? "bg-primary border-primary text-background shadow-[0_0_10px_rgba(var(--primary-rgb),0.4)]"
+                : "border-primary/20 text-primary hover:border-primary/60"
+              }`}
+            >
+              <s.icon size={14} weight={sortOrder === s.id ? "bold" : "regular"} />
+              <span className="text-[9px] uppercase tracking-tighter">{s.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. CLASSIFICATION */}
+      <div className="space-y-3">
+        <SectionLabel label="Classification" />
+        <div className="flex flex-col gap-1.5">
+          {(["ALL", "PERSONAL", "FREELANCE"] as const).map((t) => {
+            const isActive = workType === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setWorkType(t)}
+                className="group relative flex items-center justify-between px-3 py-2 overflow-hidden transition-all outline-none border border-transparent hover:border-primary/10"
+              >
+                <span className={`text-[11px] uppercase tracking-[0.2em] z-10 transition-colors ${isActive ? 'text-primary' : 'text-foreground/50'}`}>
+                  {t}
+                </span>
+                {isActive && (
+                  <motion.div
+                    layoutId="type-bg"
+                    className="absolute inset-0 bg-primary/[0.08] border-l-2 border-primary"
+                    initial={{ x: -10 }} animate={{ x: 0 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. CATEGORY INDEX */}
+      <div className="space-y-3">
+        <SectionLabel label="Category" icon={Database} />
+        <nav className="flex flex-col gap-1">
+          {["ALL", "WEB", "GAME", "MOBILE"].map((label) => {
+            const isActive = filter === label;
+            return (
+              <button
+                key={label}
+                onClick={() => setFilter(label)}
+                className={`group flex items-center gap-3 px-3 py-2 text-left text-[11px] uppercase tracking-[0.2em] transition-all
+                  ${isActive ? "text-primary font-bold" : "text-foreground/40 hover:text-primary hover:translate-x-1"}`}
+              >
+                <div className={`size-1.5 rotate-45 border border-primary transition-all ${isActive ? "bg-primary shadow-[0_0_8px_var(--primary)]" : "opacity-20"}`} />
+                {label}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+    </div>
+  );
+
+  return (
+    <aside className="w-full lg:w-52 shrink-0">
+      {/* MOBILE COLLAPSIBLE */}
+      <div className="lg:hidden mb-8">
+        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border border-primary/20 bg-background/50 backdrop-blur-md">
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 group">
+            <div className="flex items-center gap-3">
+              <FadersHorizontal size={18} className="text-primary" />
+              <span className="text-xs uppercase tracking-[0.3em] text-primary">System_Filters</span>
+            </div>
+            <CaretDown
+              size={16}
+              className={`text-primary transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="px-4 pb-6">
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent mb-6" />
+            {FilterContent}
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+
+      {/* DESKTOP SIDEBAR */}
+      <div className="hidden lg:block sticky top-32">
+        {FilterContent}
+      </div>
+    </aside>
+  );
+}
 export default function ProjectsPage() {
   const [isBooting, setIsBooting] = useState(true);
   const [isUplinking, setIsUplinking] = useState(false);
@@ -178,26 +346,12 @@ export default function ProjectsPage() {
       <div className="fixed inset-0 z-[60] pointer-events-none flex flex-col justify-between p-6 md:p-10">
         <div className="flex items-start justify-between w-full">
           <div className="flex flex-col gap-2 pointer-events-auto">
-            <AnimatePresence mode="wait">
-              {selectedId && (
-                <motion.button
-                  key="back-btn"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  onClick={() => handleProjectSelect(null)}
-                  className="flex items-center gap-4 border border-primary/20 bg-background/80 p-3 hover:border-primary/60 transition-all shadow-[0_0_20px_rgba(0,0,0,0.5)]"
-                >
-                  <CaretLeft size={16} className="text-primary" />
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-primary">Return_Archive</span>
-                </motion.button>
-              )}
-            </AnimatePresence>
-            {!selectedId && (
+
+
               <div className="text-[9px] uppercase tracking-[0.4em] text-primary/30 ml-2">
                 Loc: Orion_Arm // Sol_8.2
               </div>
-            )}
+
           </div>
           <div className="text-right flex flex-col items-end gap-1">
              <span className="text-[10px] uppercase tracking-widest text-primary/60">
@@ -262,107 +416,16 @@ export default function ProjectsPage() {
 
                 <div className="flex flex-col lg:flex-row gap-8 md:gap-12">
                   {/* SIDEBAR FILTERS */}
-                  <aside className="w-full lg:w-52 shrink-0">
-                    <div className="sticky top-32 space-y-12">
-
-                      {/* 1. SEARCH MODULE */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 opacity-30">
-                          <Target size={10} />
-                          <span className="text-[9px] uppercase tracking-[0.4em]">Query_Search</span>
-                        </div>
-                        <div className="relative group">
-                          <input
-                            type="text"
-                            placeholder="ENTER_STRING..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-primary/[0.03] border border-primary/10 p-2.5 text-[10px] uppercase tracking-widest text-primary focus:outline-none focus:border-primary/40 focus:bg-primary/5 transition-all placeholder:opacity-20"
-                          />
-                          <div className="absolute top-0 right-0 size-1 border-t border-r border-primary/30 opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-
-                      {/* 2. SORT ORDER TOGGLE */}
-                      <div className="space-y-4">
-                        <span className="text-[9px] uppercase tracking-[0.4em] text-primary/30 block mb-2">Sequence_Order</span>
-                        <div className="flex flex-col gap-1">
-                          {[
-                            { id: "DESC", label: "NEWEST_FIRST" },
-                            { id: "ASC", label: "OLDEST_FIRST" }
-                          ].map((s) => {
-                            const isActive = sortOrder === s.id;
-                            return (
-                              <button
-                                key={s.id}
-                                onClick={() => setSortOrder(s.id as "ASC" | "DESC")}
-                                className="group flex items-center justify-between py-1.5 transition-all outline-none"
-                              >
-                                <span className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${isActive ? 'text-primary' : 'text-primary/40 group-hover:text-primary/60'}`}>
-                                  {s.label}
-                                </span>
-                                {isActive && (
-                                  <motion.div layoutId="sort-indicator" className="size-1 bg-primary shadow-[0_0_8px_var(--primary)]" />
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* 3. CLASSIFICATION (Work Type) */}
-                      <div className="space-y-4 border-t border-primary/5 pt-8">
-                        <span className="text-[9px] uppercase tracking-[0.4em] text-primary/30 block mb-2">Classification</span>
-                        <div className="flex flex-col gap-1">
-                          {["ALL", "PERSONAL", "FREELANCE"].map((t) => {
-                            const isActive = workType === t;
-                            return (
-                              <button
-                                key={t}
-                                onClick={() => setWorkType(t as any)}
-                                className="group flex items-center justify-between py-1.5 transition-all outline-none"
-                              >
-                                <span className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${isActive ? 'text-primary' : 'text-primary/40 group-hover:text-primary/60'}`}>
-                                  {t}
-                                </span>
-                                {isActive && (
-                                  <motion.div layoutId="type-indicator" className="size-1 bg-primary shadow-[0_0_8px_var(--primary)]" />
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* 4. CATEGORY INDEX */}
-                      <div className="space-y-4 border-t border-primary/5 pt-8">
-                        <div className="flex items-center gap-2 opacity-30">
-                          <Database size={10} />
-                          <span className="text-[9px] uppercase tracking-[0.4em]">Category_Index</span>
-                        </div>
-                        <nav className="flex lg:flex-col flex-wrap gap-1">
-                          {["ALL", "WEB", "GAME", "MOBILE"].map((label) => {
-                            const isActive = filter === label;
-                            return (
-                              <button
-                                key={label}
-                                onClick={() => setFilter(label)}
-                                className={`relative flex items-center px-3 py-2 text-left text-[10px] uppercase tracking-[0.3em] transition-all border
-                                  ${isActive
-                                    ? "bg-primary/5 border-primary/30 text-primary"
-                                    : "border-transparent text-primary/30 hover:text-primary/60 hover:translate-x-1"}`}
-                              >
-                                {isActive && (
-                                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-3 bg-primary" />
-                                )}
-                                <span className={isActive ? "pl-2" : "pl-0"}>{label}</span>
-                              </button>
-                            )
-                          })}
-                        </nav>
-                      </div>
-                    </div>
-                  </aside>
+                  <ProjectFilters
+                      searchQuery={searchQuery}
+                      setSearchQuery={setSearchQuery}
+                      sortOrder={sortOrder}
+                      setSortOrder={setSortOrder}
+                      workType={workType}
+                      setWorkType={setWorkType}
+                      filter={filter}
+                      setFilter={setFilter}
+                    />
 
                   {/* PROJECTS GRID */}
                   <div className="flex-1 space-y-12">
@@ -408,79 +471,134 @@ export default function ProjectsPage() {
   );
 }
 
-/* --- PROJECT CARD COMPONENT --- */
-function ProjectArchiveCard({ project, onClick }: any) {
+export function ProjectArchiveCard({ project, onClick }: any) {
   return (
     <motion.div
       onClick={onClick}
-      whileHover={{ y: -5 }}
-      className="group relative flex flex-col border border-primary/10 bg-background/40 backdrop-blur-md cursor-crosshair overflow-hidden"
+      whileHover="hover"
+      initial="initial"
+      className="group relative flex flex-col border border-primary/20 bg-background/40 backdrop-blur-md cursor-pointer overflow-hidden transition-all duration-500 hover:border-primary/60 hover:shadow-[0_0_40px_rgba(var(--primary-rgb),0.15)]"
     >
-      {/* Type Tag (Personal vs Freelance) */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-        <div className={`px-2 py-0.5 text-[8px] uppercase tracking-widest border font-bold
-          ${project.is_personal ? 'bg-primary/10 border-primary/40 text-primary' : 'bg-muted/10 border-muted text-muted-foreground'}`}>
-          {project.is_personal ? '[PERS]' : '[FREE]'}
+      {/* 1. ULTRA-MINIMAL HEADER */}
+      <div className="flex items-center justify-between px-3 py-1.5 bg-primary/10 border-b border-primary/10">
+        <div className="flex items-center gap-2">
+          <div className="size-1.5 bg-primary animate-pulse rounded-full" />
+          <span className="text-[8px] font-bold tracking-[0.3em] text-primary/70 uppercase">
+            Node_{project.id.toString().padStart(3, '0')}
+          </span>
         </div>
-        <span className="text-[8px] uppercase tracking-widest text-primary/40 opacity-0 group-hover:opacity-100 transition-opacity">
-          ID_0x{project.id}
+        <span className="text-[8px] font-mono text-primary/40 group-hover:text-primary transition-colors">
+          {project.date}
         </span>
       </div>
 
-      {/* Image Container */}
-      <div className="relative aspect-video overflow-hidden border-b border-primary/10">
-        <img
+      {/* 2. IMAGE CONTAINER (Vivid & Fluid) */}
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <motion.img
           src={project.cover}
-          className="size-full object-cover grayscale opacity-50 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+          variants={{
+            initial: { scale: 1 },
+            hover: { scale: 1.1 }
+          }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="size-full object-cover"
           alt={project.title}
         />
-        <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors" />
 
-        {/* Hover Icon Over Image */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/20 backdrop-blur-[1px]">
-          <Target size={32} className="text-primary animate-pulse" />
+        {/* Animated Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity duration-500" />
+
+        {/* Status Badge */}
+        <div className="absolute top-3 left-3">
+          <div className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border backdrop-blur-md ${
+            project.is_personal
+              ? 'border-blue-500/50 text-blue-400 bg-blue-500/10'
+              : 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10'
+          }`}>
+            {project.is_personal ? 'Personal' : 'Freelance'}
+          </div>
         </div>
+
+        {/* Fluid Action Button */}
+        <motion.div
+          variants={{
+            initial: { opacity: 0, x: 10, y: 10 },
+            hover: { opacity: 1, x: 0, y: 0 }
+          }}
+          className="absolute bottom-3 right-3 p-2 bg-primary text-background"
+        >
+          <ArrowUpRight size={14} weight="bold" />
+        </motion.div>
       </div>
 
-      {/* Content */}
-      <div className="p-6 space-y-4 relative">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-             <h3 className="text-2xl uppercase tracking-tighter text-foreground/80 group-hover:text-primary transition-colors">
-               {project.title}
-             </h3>
-             <p className="text-[9px] uppercase tracking-widest text-primary/40 italic">
-               {project.tech}
-             </p>
-          </div>
-          <div className="text-[10px] text-primary/20 group-hover:text-primary/60 transition-colors uppercase">
-            {project.date}
-          </div>
-        </div>
+      {/* 3. COMPACT CONTENT */}
+      <div className="p-4 space-y-3">
+        <motion.div
+          variants={{
+            initial: { y: 0 },
+            hover: { y: -2 }
+          }}
+          className="space-y-2"
+        >
+          <h3 className="text-xl font-bold tracking-tight text-foreground/90 group-hover:text-primary transition-colors duration-300">
+            {project.title}
+          </h3>
 
-        <p className="text-[11px] uppercase leading-relaxed text-muted-foreground/60 line-clamp-2 border-l border-primary/10 pl-4 py-1">
-          {project.description}
-        </p>
+          {/* Tech Stack - Pill Style */}
+          <div className="flex flex-wrap gap-1.5">
+            {project.tech.split(',').map((t: string, i: number) => (
+              <motion.span
+                key={t}
+                variants={{
+                  initial: { opacity: 0.6, y: 0 },
+                  hover: { opacity: 1, y: -1 }
+                }}
+                transition={{ delay: i * 0.05 }}
+                className="flex items-center gap-1 text-[9px] font-bold border border-primary/10 bg-primary/5 px-2 py-0.5 text-primary/80 uppercase tracking-tighter"
+              >
+                <Code size={8} />
+                {t.trim()}
+              </motion.span>
+            ))}
+          </div>
+        </motion.div>
 
+        {/* 4. INTERACTIVE FOOTER */}
         <div className="flex items-center justify-between pt-2">
-           <div className="flex gap-2">
-              <div className="size-1 bg-primary/40" />
-              <div className="size-1 bg-primary/20" />
-              <div className="size-1 bg-primary/10" />
-           </div>
-           <GraphIcon size={16} className="text-primary/20 group-hover:text-primary/60 group-hover:animate-pulse" />
+          <div className="flex gap-1">
+            {[...Array(4)].map((_, i) => (
+              <motion.div
+                key={i}
+                variants={{
+                  initial: { scaleY: 1, opacity: 0.2 },
+                  hover: { scaleY: [1, 2, 1], opacity: 1 }
+                }}
+                transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
+                className="w-[2px] h-2 bg-primary"
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-2 opacity-30 group-hover:opacity-100 transition-opacity">
+            <Cpu size={12} className="text-primary" />
+            <span className="text-[8px] font-mono tracking-widest text-primary">V_2.0</span>
+          </div>
         </div>
       </div>
-    </motion.div>
-  )
-}
-const ProjectDetailView = ({ project, currentIndex, setCurrentIndex, onBack }: any) => {
-  // Navigation cleanup for Navbar
-  useEffect(() => {
-    hideNavbar?.();
-    return () => showNavbar?.();
-  }, []);
 
+      {/* Bottom Scanning Line Accent */}
+      <motion.div
+        variants={{
+          initial: { scaleX: 0 },
+          hover: { scaleX: 1 }
+        }}
+        className="absolute bottom-0 left-0 h-[3px] w-full bg-primary origin-left shadow-[0_0_15px_var(--primary)]"
+      />
+    </motion.div>
+  );
+}
+
+
+export const ProjectDetailView = ({ project, currentIndex, setCurrentIndex, onBack }: any) => {
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIndex((prev: number) => (prev + 1) % project.imgs.length);
@@ -492,168 +610,185 @@ const ProjectDetailView = ({ project, currentIndex, setCurrentIndex, onBack }: a
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-16 px-4 font-mono selection:bg-primary/30">
-      {/* --- 1. SYSTEM HEADER --- */}
-      <header className="relative flex flex-col items-center justify-center space-y-8 pt-4 text-center">
-        {/* Decorative HUD Brackets */}
-        <div className="absolute top-0 left-1/2 hidden -translate-x-1/2 gap-64 opacity-20 md:flex">
-          <div className="h-4 w-4 border-t border-l border-primary" />
-          <div className="h-4 w-4 border-t border-r border-primary" />
+    <div className="mx-auto max-w-7xl space-y-12 px-4 pb-20 font-mono">
+      {/* --- 1. NAVIGATION & SYSTEM HEADER --- */}
+      <nav className="flex items-center justify-between border-b border-primary/10 pb-6">
+        <button
+          onClick={onBack}
+          className="group flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-primary/60 hover:text-primary transition-colors"
+        >
+          <div className="p-2 border border-primary/20 group-hover:border-primary/60 transition-all">
+            <ArrowLeft size={14} />
+          </div>
+          <span>Return_to_Archive</span>
+        </button>
+        <div className="text-right">
+          <div className="text-[10px] font-bold text-primary tracking-widest uppercase">{project.date}</div>
+          <div className="text-[8px] text-primary/40 uppercase tracking-tighter">Status: Fully_Synced</div>
+        </div>
+      </nav>
+
+      <header className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-[1px] w-12 bg-primary/40" />
+          <span className="text-[10px] uppercase tracking-[0.5em] text-primary/40">Node_Project_Analysis</span>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center gap-4 text-[9px] tracking-[0.6em] text-primary/40 uppercase"
-        >
-          <span>DATA_STREAM // NODE_0x{project.id?.toString().padStart(2, "0")}</span>
-        </motion.div>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-foreground uppercase leading-none">
+            {project.title}
+          </h2>
+          <div className="flex gap-2">
+            {project.githubUrl && (
+              <a href={project.githubUrl} target="_blank" className="p-3 border border-primary/20 text-primary hover:bg-primary hover:text-background transition-all">
+                <GithubLogo size={20} weight="fill" />
+              </a>
+            )}
+            {project.projectUrl && (
+              <a href={project.projectUrl} target="_blank" className="p-3 border border-primary/20 text-primary hover:bg-primary hover:text-background transition-all">
+                <Globe size={20} weight="fill" />
+              </a>
+            )}
+          </div>
+        </div>
 
-        <h2 className="max-w-5xl text-4xl tracking-tighter text-foreground/90 uppercase md:text-6xl lg:text-7xl">
-          {project.title}
-        </h2>
-
-        <div className="flex flex-wrap justify-center gap-3">
-          {project.tech?.split("/").map((t: string, i: number) => (
-            <span
-              key={i}
-              className="border border-primary/10 bg-primary/5 px-3 py-1 text-[10px] tracking-widest text-primary/60 uppercase hover:border-primary/30 transition-colors"
-            >
-              {t.trim()}
+        <div className="flex flex-wrap gap-2">
+          {project.stack?.map((s: string, i: number) => (
+            <span key={i} className="px-3 py-1 bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary uppercase tracking-widest">
+              {s}
             </span>
           ))}
         </div>
       </header>
 
-      {/* --- 2. MAIN ANALYSIS GRID --- */}
-      <div className="grid grid-cols-1 gap-16 lg:grid-cols-12">
+      {/* --- 2. CORE INTERFACE GRID --- */}
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
 
-        {/* VISUAL ENGINE (Left Column) */}
-        <div className="space-y-12 lg:col-span-7">
-          <div className="group relative border border-primary/10 bg-background/40 backdrop-blur-md overflow-hidden">
-
-            {/* HUD Viewfinder Overlay */}
-            <div className="pointer-events-none absolute inset-0 z-20 p-4">
-              <div className="flex h-full w-full flex-col justify-between border border-primary/5 p-2">
-                <div className="flex justify-between text-[7px] tracking-widest text-primary/30 uppercase">
-                  <span className="flex items-center gap-2"><Target size={10}/> VIEWPORT_0{currentIndex}</span>
-                  <span>720P // 60_FPS</span>
-                </div>
-                <div className="flex justify-between text-[7px] tracking-widest text-primary/30 uppercase">
-                  <span>SECURED_UPLINK</span>
-                  <span>{new Date().getFullYear()}.ARCH</span>
-                </div>
-              </div>
+        {/* LEFT COLUMN: Visual Intelligence */}
+        <div className="lg:col-span-8 space-y-8">
+          <div className="relative aspect-video overflow-hidden border border-primary/20 bg-background/40 backdrop-blur-xl group shadow-2xl">
+            {/* Viewfinder Overlay */}
+            <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-4">
+               <div className="flex justify-between items-start opacity-40">
+                  <div className="size-4 border-t border-l border-primary" />
+                  <div className="size-4 border-t border-r border-primary" />
+               </div>
+               <div className="flex justify-between items-end opacity-40">
+                  <div className="size-4 border-b border-l border-primary" />
+                  <div className="size-4 border-b border-r border-primary" />
+               </div>
             </div>
 
-            {/* Media Display */}
-            <div className="relative aspect-video overflow-hidden bg-black/20">
-              <button
-                onClick={prevImage}
-                className="absolute inset-y-0 left-0 z-30 px-6 text-primary/10 transition-all hover:bg-primary/5 hover:text-primary/60"
-              >
-                <CaretLeft size={24} />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute inset-y-0 right-0 z-30 px-6 text-primary/10 transition-all hover:bg-primary/5 hover:text-primary/60"
-              >
-                <CaretRight size={24} />
-              </button>
+            {/* Carousel Controls */}
+            {project.imgs.length > 1 && (
+              <>
+                <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-background/80 border border-primary/20 text-primary hover:scale-110 transition-all backdrop-blur-md">
+                  <CaretLeft size={20} weight="bold" />
+                </button>
+                <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-background/80 border border-primary/20 text-primary hover:scale-110 transition-all backdrop-blur-md">
+                  <CaretRight size={20} weight="bold" />
+                </button>
+              </>
+            )}
 
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={currentIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.8 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  src={project.imgs[currentIndex]}
-                  className="h-full w-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                  alt="Archive Metadata"
-                />
-              </AnimatePresence>
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentIndex}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                src={project.imgs[currentIndex]}
+                className="h-full w-full object-cover"
+              />
+            </AnimatePresence>
+
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+              {project.imgs.map((_: any, i: number) => (
+                <div key={i} className={`h-1 transition-all duration-300 ${i === currentIndex ? 'w-8 bg-primary shadow-[0_0_8px_var(--primary)]' : 'w-2 bg-primary/20'}`} />
+              ))}
             </div>
           </div>
 
-          {/* Module Logic List */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <span className="text-[9px] tracking-[0.4em] text-primary/40 uppercase">
-                Core_Logic_Modules
-              </span>
-              <div className="h-[1px] flex-1 bg-primary/10" />
-            </div>
-            <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {project.features?.map((feature: string, idx: number) => (
-                <li
-                  key={idx}
-                  className="group relative flex items-center gap-4 border border-primary/5 bg-primary/[0.02] p-5 hover:border-primary/20 transition-colors"
-                >
-                  <div className="size-1.5 rounded-full bg-primary/20 group-hover:bg-primary transition-colors" />
-                  <span className="text-[11px] tracking-wider text-foreground/70 uppercase">
-                    {feature}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          {/* Key Features / Logic Modules */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {project.features?.map((f: string, i: number) => (
+              <div key={i} className="p-4 border border-primary/10 bg-primary/[0.03] hover:border-primary/30 transition-all group">
+                <div className="flex items-center gap-3 mb-2">
+                  <Cpu size={14} className="text-primary group-hover:rotate-90 transition-transform duration-500" />
+                  <span className="text-[9px] uppercase tracking-[0.2em] text-primary/40">Feature_Ref_{i}</span>
+                </div>
+                <div className="text-[11px] font-bold text-foreground uppercase tracking-wider">{f}</div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* ANALYTICS (Right Column) */}
-        <div className="space-y-12 lg:col-span-5">
-          <section className="relative space-y-12 border-l border-primary/10 py-4 pl-10">
-            {/* Project Manifesto */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <Receipt size={16} className="text-primary/40" />
-                <h3 className="text-[9px] tracking-[0.5em] text-primary/40 uppercase">
-                  Project_Manifesto
-                </h3>
-              </div>
-              <p className="text-sm leading-relaxed text-foreground/70 uppercase tracking-tight">
-                {project.description}
-              </p>
-            </div>
+        {/* RIGHT COLUMN: Data & Metrics */}
+        <div className="lg:col-span-4 space-y-10">
+          {/* Role & Role Detail */}
+          <div className="p-6 border border-primary/10 bg-primary/[0.02] relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-2 opacity-10"><User size={40} /></div>
+             <div className="text-[10px] uppercase tracking-widest text-primary/40 mb-2">Assigned_Role</div>
+             <div className="text-xl font-bold text-primary uppercase">{project.role}</div>
+          </div>
 
-            {/* Live Metrics */}
-            <div className="space-y-8">
-              {project.metrics?.map((metric: any, idx: number) => (
-                <div key={idx} className="space-y-3">
-                  <div className="flex justify-between text-[9px] tracking-[0.2em] text-primary/40 uppercase">
-                    <span>{metric.label}</span>
-                    <span className="text-primary/60 italic">[{metric.value}%]</span>
+          {/* Analysis Paragraph */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-primary/40">
+              <Target size={14} />
+              <span className="text-[10px] uppercase tracking-[0.4em]">Project_Scope</span>
+            </div>
+            <p className="text-sm leading-relaxed text-foreground/80 font-sans italic">
+              {project.description}
+            </p>
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-primary/40">
+              <ChartBar size={14} />
+              <span className="text-[10px] uppercase tracking-[0.4em]">Efficiency_Metrics</span>
+            </div>
+            <div className="space-y-5">
+              {project.metrics?.map((m: any, i: number) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between text-[10px] uppercase tracking-tighter">
+                    <span className="text-foreground/60">{m.label}</span>
+                    <span className="text-primary font-bold">{m.value}%</span>
                   </div>
-                  <div className="relative h-[2px] w-full bg-primary/5">
+                  <div className="h-[2px] w-full bg-primary/10 relative">
                     <motion.div
                       initial={{ width: 0 }}
-                      whileInView={{ width: `${metric.value}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 2, ease: "circOut" }}
-                      className="h-full bg-primary/40 shadow-[0_0_8px_var(--primary)]"
+                      whileInView={{ width: `${m.value}%` }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="absolute h-full bg-primary shadow-[0_0_10px_var(--primary)]"
                     />
                   </div>
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Award Decors */}
-            {project.awards && (
-              <div className="pt-8 space-y-4">
-                 <div className="flex items-center gap-2 text-primary/40">
-                    <Trophy size={14} />
-                    <span className="text-[8px] uppercase tracking-widest">Achieved_Nodes</span>
-                 </div>
-                 {project.awards.map((award: any, i: number) => (
-                   <div key={i} className="text-[10px] uppercase text-primary tracking-tighter">
-                     {award.title} // {award.organization}
-                   </div>
-                 ))}
+          {/* Awards / Achievements */}
+          {project.awards && (
+            <div className="pt-6 border-t border-primary/10 space-y-4">
+              <div className="flex items-center gap-2 text-primary/40">
+                <Trophy size={14} />
+                <span className="text-[10px] uppercase tracking-[0.4em]">Achieved_Nodes</span>
               </div>
-            )}
-          </section>
+              <div className="space-y-3">
+                {project.awards.map((award: any, i: number) => (
+                  <div key={i} className="flex flex-col p-3 bg-emerald-500/5 border border-emerald-500/20">
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase">{award.title}</span>
+                    <span className="text-[8px] text-emerald-400/60 uppercase">{award.organization}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

@@ -26,7 +26,7 @@ export default function ContactForm() {
 
   const inputClasses =
     "w-full border border-primary/10 bg-muted/20 px-4 py-3 font-mono text-sm transition-all outline-none " +
-    "placeholder:text-primary/10 focus:border-primary focus:bg-muted/40 text-foreground"
+    "placeholder:text-primary/80 focus:border-primary focus:bg-muted/40 text-primary"
 
   return (
     <motion.div
@@ -88,7 +88,7 @@ export default function ContactForm() {
                   <Broadcast size={14} className="text-primary/60 animate-pulse" />
                   <span className="text-[9px] font-mono tracking-[0.4em] text-primary/40 uppercase font-bold">Protocol_v3</span>
                 </div>
-                <h2 className="text-5xl uppercase tracking-tighter text-foreground leading-none">Contact</h2>
+                <h2 className="text-5xl uppercase tracking-tighter text-foreground leading-none">Contact Me</h2>
                 <p className="text-[10px] text-muted-foreground/80 uppercase tracking-widest italic leading-tight">
                   Ready to start a new project or just say hi.
                 </p>
