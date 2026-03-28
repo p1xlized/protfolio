@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 // --- 1. CONFIGURATION (Removed BLOG) ---
 const navItems = [
   { name: "PROJECTS", path: "/projects", id: "01" },
-  { name: "MUSIC", path: "/music", id: "02" },
+  { name: "MUSIC", path: "/albums", id: "02" },
 ]
 
 const RecordingAperture = () => (

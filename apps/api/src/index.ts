@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
-import {profile } from "./router/profile";
-import { projects } from "./router/project";
+import {profile } from "./router/testimonials";
+import { testimonials } from "./router/project";
 import { blog } from "./router/blog";
 import { music } from "./router/music";
 import cors from "@elysiajs/cors";
@@ -18,7 +18,7 @@ const app = new Elysia({
       allowedHeaders: ['Content-Type', 'Authorization'],
     }))
   .use(profile)
-  .use(projects)
+  .use(testimonials)
   .use(blog)
   .use(music)
   .listen(7000);

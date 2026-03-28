@@ -51,19 +51,6 @@ const CornerMarkers = () => (
   </>
 )
 
-const ScanningBackground = ({ density = "16px" }: { density?: string }) => (
-  <div className="absolute inset-0 z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-    <motion.div
-      animate={{ y: ["-10%", "110%"] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-      className="h-[1px] w-full bg-primary/20 shadow-[0_0_10px_rgba(var(--primary),0.3)]"
-    />
-    <div
-      className="absolute inset-0 bg-[radial-gradient(theme(colors.primary.DEFAULT/0.05)_1px,transparent_1px)]"
-      style={{ backgroundSize: density }}
-    />
-  </div>
-)
 
 // --- SUB-COMPONENTS ---
 
@@ -324,8 +311,6 @@ const BioModule = () => (
   </div>
 )
 
-
-
 const ProjectsModule = ({ onClick }: { onClick: () => void }) => (
   <motion.button
             onClick={onClick}
@@ -558,20 +543,110 @@ const DesktopView = () => {
 
 const MobileView = () => {
   const navigate = useNavigate()
+
   return (
-    <div className="flex w-full flex-col gap-3 p-4 font-mono">
-      <div className="flex items-center gap-3 border border-primary/20 bg-card/40 p-4">
-        <img src={UI_DATA.profile.image} className="size-14 border border-primary/40 grayscale" alt="Profile" />
-        <div className="flex flex-col">
-          <h1 className="text-xl font-black tracking-tighter text-primary uppercase text-c">{UI_DATA.profile.name}</h1>
-          <span className="text-[8px] font-bold tracking-[0.2em] text-primary/40 uppercase">Session_Active</span>
+    <div className="flex w-full flex-col gap-4 p-6 font-mono relative overflow-hidden">
+      {/* Background Decorative Scanline */}
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+
+      {/* --- HEADER BLOCK --- */}
+      <div className="relative flex items-center gap-4 border border-primary/30 bg-card/40 p-4">
+        <div className="relative size-16 shrink-0">
+          <img
+            src={UI_DATA.profile.image}
+            className="size-full border border-primary/40 grayscale object-cover"
+            alt="Profile"
+          />
+          <div className="absolute -bottom-1 -right-1 size-3 bg-primary shadow-[0_0_8px_var(--primary)] rounded-full border-2 border-background" />
+        </div>
+
+        <div className="flex flex-col min-w-0">
+          <h1 className="truncate text-xl font-black tracking-tighter text-primary uppercase leading-tight">
+            {UI_DATA.profile.name}
+          </h1>
+          <div className="flex items-center gap-2">
+            <span className="text-[7px] font-bold tracking-[0.2em] text-primary/60 uppercase italic">
+              System_Authorized
+            </span>
+            <div className="h-px flex-1 bg-primary/20" />
+          </div>
+        </div>
+        <CornerMarkers />
+      </div>
+
+      {/* --- BIO MODULE --- */}
+      <div className="relative border border-primary/20 bg-primary/5 p-5">
+        <div className="mb-2 flex items-center gap-2 opacity-30">
+          <UserFocus size={10} weight="fill" />
+          <span className="text-[6px] tracking-[0.3em] uppercase font-bold">Identity_Fragment</span>
+        </div>
+        <p className="text-[11px] leading-relaxed text-primary/80 italic">
+          "{UI_DATA.profile.about}"
+        </p>
+        <div className="absolute top-0 right-0 p-1 text-[5px] text-primary/20 font-mono">
+          0x04F2BC
         </div>
       </div>
-      <div className="border border-primary/20 bg-card/30 p-5 italic text-xs text-primary/80">"{UI_DATA.profile.about}"</div>
-      <button onClick={() => navigate({ to: "/projects" })} className="flex h-48 flex-col items-center justify-center border border-primary/30 bg-primary/10 active:bg-primary active:text-background">
-        <Code size={40} className="text-primary" />
-        <span className="mt-4 text-sm font-black tracking-[0.6em] text-primary uppercase">PROJECTS</span>
-      </button>
+
+      {/* --- GRID NAVIGATION --- */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* LARGE PRIMARY BUTTON: PROJECTS */}
+        <button
+          onClick={() => navigate({ to: "/projects" })}
+          className="relative col-span-2 flex h-32 flex-col items-center justify-center border border-primary/40 bg-primary/10 active:bg-primary active:text-background transition-colors overflow-hidden group"
+        >
+          <Code size={32} className="text-primary group-active:text-background" />
+          <span className="mt-2 text-xs font-black tracking-[0.6em] text-primary group-active:text-background uppercase">
+            Projects
+          </span>
+          <div className="absolute top-2 left-2 text-[6px] opacity-30 uppercase font-bold">Node_01</div>
+          <CornerMarkers />
+        </button>
+
+        {/* SECONDARY BUTTON: BLOG */}
+        <button
+          onClick={() => console.log("Blog clicked")}
+          className="relative flex h-24 flex-col items-center justify-center border border-primary/20 bg-card/40 active:bg-primary/20"
+        >
+          <Archive size={20} weight="thin" className="text-primary" />
+          <span className="mt-2 text-[10px] font-bold tracking-[0.3em] text-primary/80 uppercase">Blog</span>
+          <CornerMarkers />
+        </button>
+
+        {/* SECONDARY BUTTON: MUSIC */}
+        <button
+          onClick={() => navigate({ to: "/albums" })}
+          className="relative flex h-24 flex-col items-center justify-center border border-primary/20 bg-card/40 active:bg-primary/20"
+        >
+          <Broadcast size={20} weight="thin" className="text-primary" />
+          <span className="mt-2 text-[10px] font-bold tracking-[0.3em] text-primary/80 uppercase">Music</span>
+          <CornerMarkers />
+        </button>
+
+        {/* SECONDARY BUTTON: SOCIALS / CONTACT */}
+        <button
+          onClick={() => window.open(UI_DATA.socials[1].link, "_blank")}
+          className="relative col-span-2 flex h-16 items-center justify-between border border-primary/20 bg-card/40 px-6 active:bg-primary/20"
+        >
+          <div className="flex items-center gap-3">
+             <LinkedinLogo size={18} weight="thin" className="text-primary" />
+             <span className="text-[10px] font-bold tracking-[0.4em] text-primary/80 uppercase">Uplink_Identity</span>
+          </div>
+          <CaretDoubleRight size={14} className="text-primary/40 animate-pulse" />
+          <CornerMarkers />
+        </button>
+      </div>
+
+      {/* --- FOOTER STATUS --- */}
+      <div className="mt-4 flex justify-between items-center px-2 opacity-20 font-mono text-[6px] tracking-widest uppercase">
+        <span>Kernel_V.4.2</span>
+        <div className="flex gap-1">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="size-1 bg-primary rotate-45" />
+          ))}
+        </div>
+        <span>Sync_Ready</span>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
-import { profiles, projects, blogPosts, albums, tracks } from "./schema";
-import path from "node:path";
+import { projects, blogPosts, albums, tracks, testimonials } from "./schema";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is required");
@@ -16,25 +15,44 @@ const db = drizzle(client);
 
 async function seed() {
   console.log("Emptying existing data... 🧹");
-  // Ensure this exact order
-  await db.delete(tracks);      // Child of Albums
-  await db.delete(albums);      // Child of Profile
-  await db.delete(blogPosts);   // Child of Profile
-  await db.delete(projects);    // Child of Profile
-  await db.delete(profiles);    // The Parent
 
-  console.log("Seeding Profile... 👤");
-  const [me] = await db
-    .insert(profiles)
-    .values({
-      id: "alex_01",
-      name: "Alexandru Paduret",
-      email: "alex@example.com", // Update with your actual email if needed
-      bio: "Full-Stack Software Engineer & CS Student in Finland.",
-      avatarUrl: "https://avatars.githubusercontent.com/u/72890769?v=4",
-      githubUrl: "https://github.com/svdxx",
-    })
-    .returning();
+  // Clean up in reverse order of dependencies
+  await db.delete(tracks);      // Child of Albums
+  await db.delete(albums);
+  await db.delete(blogPosts);
+  await db.delete(projects);
+  await db.delete(testimonials);
+
+  console.log("Seeding Testimonials... 💬");
+  await db.insert(testimonials).values([
+    {
+      id: "U-01",
+      author: "Marc-Antoine D.",
+      role: "Senior Lead Dev",
+      project: "Distributed Systems Architecture",
+      date: "2026.02.14",
+      content: "Exceptional mastery of distributed systems. The integration speed on the Golang backend was surgical. p1xlized is a force multiplier for any technical team requiring high-performance infrastructure.",
+      hash: "0x88_SEC_ALPHA"
+    },
+    {
+      id: "U-02",
+      author: "Sarah L.",
+      role: "Product Architect",
+      project: "TUI Interface Framework",
+      date: "2025.11.28",
+      content: "The TUI-aesthetic portfolio components aren't just for show—the underlying React logic is some of the cleanest I've audited in years. Highly efficient and strictly typed codebase.",
+      hash: "0x42_VAL_BETA"
+    },
+    {
+      id: "U-03",
+      author: "Jonas K.",
+      role: "Full-Stack Dev",
+      project: "Cloud Native Monorepo",
+      date: "2026.01.05",
+      content: "From TypeScript to low-level systems, the versatility is rare. Handled the monorepo deployment with zero downtime using ElysiaJS and Bun. A flawless execution under pressure.",
+      hash: "0xFF_OPT_GAMMA"
+    }
+  ]);
 
   console.log("Seeding Music Albums... 💿");
   const [firstAlbum] = await db.insert(albums).values([
@@ -44,7 +62,6 @@ async function seed() {
       releaseDate: new Date("2026-01-15"),
       genre: "Lo-Fi / Synthwave",
       coverUrl: "https://picsum.photos/400/400",
-      profileId: me.id,
     }
   ]).returning();
 
@@ -85,7 +102,6 @@ async function seed() {
       awards: [{ title: "3RD_PLACE_OVERALL", organization: "HACKATHON_2024" }, { title: "BEST_DESIGN_AWARD", organization: "HACKATHON_2024" }],
       isFeatured: true,
       isPersonal: true,
-      profileId: me.id,
       stack: ["Flutter", "Supabase", "OpenAI"]
     },
     {
@@ -102,8 +118,8 @@ async function seed() {
       metrics: [{ label: "Progress", value: 100 }, { label: "LOAD_TIME_MS", value: 95 }],
       isFeatured: true,
       isPersonal: true,
-      profileId: me.id,
-      stack: ["React", "Three.js", "Supabase"]
+      stack: ["React", "Three.js", "Supabase"],
+      awards: []
     },
     {
       title: "KIRA",
@@ -117,33 +133,30 @@ async function seed() {
       githubUrl: "https://github.com/svdxx/kira",
       features: ["Interactive World", "Enemy AI", "Varied Environments"],
       metrics: [{ label: "Progress", value: 100 }],
+      isFeatured: false,
       isPersonal: true,
-      profileId: me.id,
-      stack: ["Godot", "GDScript"]
+      stack: ["Godot", "GDScript"],
+      awards: []
     },
-    // Inside the projects seeding section of your seed script:
-      {
-        title: "JUNCTION_CHALLENGE",
-        tech: "TYPESCRIPT / OPENAI / NODE.JS",
-        role: "BACKEND",
-        date: "NOV_2024",
-        tag: "GAME",
-        description: "Working in a team of five for the Junction 2024 hackathon, we designed a context-aware AI narrative engine utilizing recursive memory management for LLM prompt injection. This system enables dynamic storyline branching that adapts to player decisions and emotional tone in real-time.",
-        cover: "/assets/projects/junc2025.png",
-        imgs: ["https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop"],
-
-        // UPDATED: Added GitHub URL
-        githubUrl: "https://github.com/svdxx/junction-2024",
-
-        projectUrl: "https://youtu.be/8T6qDzPPie0?si=sEVZRA0Dpj78lROx",
-        isVideo: true,
-        features: ["NARRATIVE_BRANCHING", "CONTEXT_AWARE_BRANCHING", "STATE_PERSISTENCE"],
-        metrics: [{ label: "Progress", value: 100 }],
-        isFeatured: false,
-        isPersonal: true,
-        profileId: me.id,
-        stack: ["TypeScript", "OpenAI", "Node.js"]
-      }
+    {
+      title: "JUNCTION_CHALLENGE",
+      tech: "TYPESCRIPT / OPENAI / NODE.JS",
+      role: "BACKEND",
+      date: "NOV_2024",
+      tag: "GAME",
+      description: "Working in a team of five for the Junction 2024 hackathon, we designed a context-aware AI narrative engine utilizing recursive memory management for LLM prompt injection. This system enables dynamic storyline branching that adapts to player decisions and emotional tone in real-time.",
+      cover: "/assets/projects/junc2025.png",
+      imgs: ["https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1000&auto=format&fit=crop"],
+      githubUrl: "https://github.com/svdxx/junction-2024",
+      projectUrl: "https://youtu.be/8T6qDzPPie0?si=sEVZRA0Dpj78lROx",
+      isVideo: true,
+      features: ["NARRATIVE_BRANCHING", "CONTEXT_AWARE_BRANCHING", "STATE_PERSISTENCE"],
+      metrics: [{ label: "Progress", value: 100 }],
+      isFeatured: false,
+      isPersonal: true,
+      stack: ["TypeScript", "OpenAI", "Node.js"],
+      awards: []
+    }
   ]);
 
   console.log("Seeding Blog Posts... ✍️");
@@ -154,7 +167,6 @@ async function seed() {
       excerpt: "A deep dive into moving to Finland as a student and developer.",
       content: "Full markdown content goes here...",
       published: true,
-      profileId: me.id,
     }
   ]);
 

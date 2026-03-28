@@ -81,7 +81,7 @@ export function PageBackground() {
   }, [mouseX, mouseY]);
 
   return (
-    <div className="fixed inset-0 -z-50 bg-background overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 -z-50 bg-background/20 overflow-hidden pointer-events-none">
 
       {/* 1. PERSPECTIVE GRID CONTAINER */}
       <motion.div
@@ -408,7 +408,7 @@ export default function ProjectsPage() {
                 className="space-y-12"
               >
                 {/* --- HEADER BLOCK --- */}
-                <div className="flex flex-col gap-6 border-b border-primary/10 pb-12">
+                <div className="flex flex-col gap-6 border-b border-primary/10 pb-6">
                    <div className="flex items-center gap-4">
                      <div className="h-[1px] w-12 bg-primary/40" />
                      <span className="text-[10px] uppercase tracking-[0.8em] text-primary/40">Repository_Index</span>
@@ -416,7 +416,7 @@ export default function ProjectsPage() {
 
                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                       <div className="space-y-2">
-                        <h1 className="text-6xl md:text-8xl uppercase tracking-tighter text-foreground/90 leading-none">
+                        <h1 className="text-4xl md:text-6xl uppercase tracking-tighter text-foreground/90 leading-none">
                           Projects
                         </h1>
                         <p className="text-[9px] uppercase tracking-[0.5em] text-primary/30 italic">
@@ -656,7 +656,7 @@ export const ProjectDetailView = ({ project, currentIndex, setCurrentIndex, onBa
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-foreground uppercase leading-none">
+          <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-foreground uppercase leading-none">
             {project.title}
           </h2>
           <div className="flex gap-2">
