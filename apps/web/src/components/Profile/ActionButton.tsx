@@ -165,7 +165,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
           <div className="absolute inset-0 bg-primary/40 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-40" />
         </div>
 
-        <h3 className="text-4xl font-light tracking-tighter text-foreground transition-all duration-300 group-hover:text-primary uppercase">
+        <h3 className="text-4xl font-sans tracking-tighter text-foreground transition-all duration-300 group-hover:text-primary uppercase">
           {label}
         </h3>
 

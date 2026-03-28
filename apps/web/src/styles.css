@@ -5,8 +5,22 @@
 @source "../../../packages/ui/src/**/*.tsx";
 @source "./src/**/*.tsx";
 
-@import "@fontsource-variable/jetbrains-mono";
 @custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: 'Departure Mono';
+  src: url('/assets/fonts/DepartureMono.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OxProto';
+  src: url('/assets/fonts/OxProto.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme inline {
   /* Layout & Backgrounds */
@@ -34,11 +48,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Typography & Radius */
-  --font-sans: var(--font-mono);
-  --font-mono: var(--font-mono);
-  --font-serif: var(--font-mono);
-  --radius-lg: var(--radius);
+  --font-departure: 'Departure Mono', monospace;
+  --font-proto: 'OxProto', monospace;
+
+    /* 2. Map them to Tailwind utilities */
+    --font-sans: var(--font-departure);
+    --font-mono: var(--font-departure);
+    --font-display: var(--font-proto); /* This creates .font-display */
 
   /* CRT Glow Utilities */
   --shadow-glow: 0px 0px 20px -5px var(--primary);
@@ -47,52 +63,44 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    /* Force monospace globally for the TUI aesthetic */
-    font-family: var(--font-mono) !important;
+    /* Fixed variable reference */
+    font-family: var(--font-departure) !important;
   }
 
   body {
     @apply bg-background text-foreground transition-colors duration-500;
+    /* Disable smoothing to make Departure Mono look like real pixels */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: none;
+    text-rendering: optimizeSpeed;
   }
 
-  /* Sub-pixel rendering for high-quality mono text */
-  h1,
-  h2,
-  h3,
-  h4,
-  button,
-  p,
-  span {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.02em;
-  }
+  h1, h2 .font-display {
+      font-family: var(--font-proto) !important;
+      -webkit-font-smoothing: antialiased; /* Keep titles smooth */
+      letter-spacing: -0.04em;
+    }
 
-  /* Custom Selection Color (Phosphor Teal) */
   ::selection {
     @apply bg-primary/30 text-primary-foreground;
   }
 }
 
-/* Custom Cursor Logic - Prevents "Ghosting" on Mobile */
+/* --- CURSOR LOGIC --- */
+
+/* Only hide system cursor if a mouse is detected */
 @media (pointer: fine) {
-  * {
+  body, * {
     cursor: none !important;
   }
 }
 
-.no-js * {
-  cursor: auto;
-}
-/* Hide system cursor ONLY if the user has a mouse/fine pointer */
-@media (pointer: fine) {
-  .body-custom-cursor {
-    cursor: none !important;
-  }
-}
-
-/* If it's a touch device (iPad/Phone), show the standard cursor or hide the custom one */
+/* Fallback for No-JS or touch devices */
+.no-js *,
 @media (pointer: coarse) {
+  body, * {
+    cursor: auto !important;
+  }
   .custom-cursor-element {
     display: none !important;
   }

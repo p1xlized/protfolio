@@ -107,7 +107,13 @@ const HeaderSection = ({ titleIndex }: { titleIndex: number }) => (
         <div className="h-[1px] flex-1 bg-primary/10" />
       </div>
 
-      <motion.h1 className="w-full truncate text-3xl leading-none font-light tracking-tighter text-foreground uppercase sm:text-4xl md:text-6xl">
+      <motion.h1
+        className="w-full truncate text-3xl leading-none font-title tracking-tighter text-foreground uppercase sm:text-4xl md:text-6xl"
+        /* Pro-tip: Since font-display (JetBrains) is smoother,
+           use font-black (900) to give it that "Heavy Industrial"
+           contrast against the thinner Departure Mono UI elements.
+        */
+      >
         {UI_DATA.profile.name}
       </motion.h1>
 
