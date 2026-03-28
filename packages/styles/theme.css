@@ -22,6 +22,11 @@
     --ring: oklch(0.7099 0.0954 147.5011);
     --font-mono: "JetBrains Mono", monospace;
     --radius: 0.15rem;
+    --chart-1: oklch(0.6465 0.1503 165.615); /* Teal-ish */
+    --chart-2: oklch(0.58 0.1 200); /* Steel Blue */
+    --chart-3: oklch(0.45 0.05 250); /* Deep Slate */
+    --chart-4: oklch(0.75 0.12 150); /* Soft Sage */
+    --chart-5: oklch(0.6 0.15 30); /* Muted Terracotta */
 }
 
 .dark {
@@ -47,4 +52,9 @@
     --sidebar-foreground: oklch(0.8 0.03 180);
     --sidebar-primary: var(--primary);
     --sidebar-border: oklch(0.3 0.02 180 / 0.5);
+    --chart-1: oklch(0.7 0.12 180); /* Primary Phosphor Cyan */
+    --chart-2: oklch(0.65 0.15 150); /* Emerald Node Green */
+    --chart-3: oklch(0.75 0.1 220); /* Atmospheric Blue */
+    --chart-4: oklch(0.8 0.14 110); /* Warning Amber/Yellow */
+    --chart-5: oklch(0.6 0.18 340); /* Signal Pink/Red */
 }

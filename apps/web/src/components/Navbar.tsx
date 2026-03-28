@@ -139,9 +139,9 @@ const MobileDrawer = ({ currentPath, onNavigate, onClose, theme }: any) => (
     animate={{ opacity: 1, x: 0 }}
     exit={{ opacity: 0, x: "100%" }}
     transition={{ type: "spring", damping: 25, stiffness: 200 }}
-    className="fixed inset-0 z-[150] flex flex-col bg-background font-mono"
+    className="fixed inset-0 z-[150] flex flex-col bg-background/20 backdrop-blur-md font-mono"
   >
-    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,150,147,0.03)_1px,transparent_1px)] bg-[size:100%_4px]" />
+    <div className="pointer-events-none absolute inset-0 " />
 
     <div className="flex h-20 items-center justify-between px-8 md:px-12">
       <MothershipLogo />

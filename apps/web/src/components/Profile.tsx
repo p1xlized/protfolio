@@ -108,7 +108,7 @@ const HeaderSection = ({ titleIndex }: { titleIndex: number }) => (
       </div>
 
       <motion.h1
-        className="w-full truncate text-3xl leading-none font-title tracking-tighter text-foreground uppercase sm:text-4xl md:text-6xl"
+        className="w-full truncate text-3xl leading-none font-mono tracking-tighter text-foreground sm:text-4xl md:text-6xl"
         /* Pro-tip: Since font-display (JetBrains) is smoother,
            use font-black (900) to give it that "Heavy Industrial"
            contrast against the thinner Departure Mono UI elements.
@@ -563,7 +563,7 @@ const MobileView = () => {
       <div className="flex items-center gap-3 border border-primary/20 bg-card/40 p-4">
         <img src={UI_DATA.profile.image} className="size-14 border border-primary/40 grayscale" alt="Profile" />
         <div className="flex flex-col">
-          <h1 className="text-xl font-black tracking-tighter text-primary uppercase">{UI_DATA.profile.name}</h1>
+          <h1 className="text-xl font-black tracking-tighter text-primary uppercase text-c">{UI_DATA.profile.name}</h1>
           <span className="text-[8px] font-bold tracking-[0.2em] text-primary/40 uppercase">Session_Active</span>
         </div>
       </div>

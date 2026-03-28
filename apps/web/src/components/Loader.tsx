@@ -9,7 +9,7 @@ interface SystemLoaderProps {
   duration?: number // Time in seconds
 }
 
-function SystemLoader({ onComplete, duration = 1.5 }: SystemLoaderProps) {
+export function SystemLoader({ onComplete, duration = 1.5 }: SystemLoaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -123,7 +123,7 @@ function SystemLoader({ onComplete, duration = 1.5 }: SystemLoaderProps) {
   )
 }
 
-function DataUplink({
+export function DataUplink({
   onComplete,
   mode,
 }: {
@@ -135,60 +135,95 @@ function DataUplink({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[150] flex flex-col items-center justify-center bg-background/90 font-mono backdrop-blur-md"
+      className="fixed inset-0 z-[150] flex flex-col items-center justify-center bg-background font-mono"
     >
-      <div className="relative flex flex-col items-center gap-8">
-        {/* Minimal Central Node */}
-        <div className="relative flex size-12 items-center justify-center">
+      {/* BACKGROUND: MICROMESH GRID (Matching SystemLoader) */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(theme(colors.primary.DEFAULT/0.1)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
+
+      {/* --- CENTRAL TRANSITION MODULE --- */}
+      <div className="relative flex flex-col items-center">
+
+        {/* EXTERNAL DECORATIVE BRACKETS */}
+        <div className="absolute -inset-16 pointer-events-none opacity-40">
+          <div className="absolute top-0 left-0 size-6 border-t border-l border-primary/40" />
+          <div className="absolute bottom-0 right-0 size-6 border-b border-r border-primary/40" />
+
+          {/* Moving scan line during transition */}
           <motion.div
-            animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.5, 0.2] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute size-full rounded-full border border-primary"
+            animate={{ top: ["0%", "100%", "0%"] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="absolute left-0 w-full h-px bg-primary/20 shadow-[0_0_10px_var(--primary)]"
           />
-          <div className="size-1 bg-primary shadow-[0_0_8px_var(--primary)]" />
         </div>
 
-        {/* Data Stream Identity */}
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-[6px] font-bold tracking-[0.8em] text-primary/40 uppercase">
-            {mode === "uplink" ? "Initiating_Sync" : "Closing_Channel"}
-          </span>
-          <div className="flex items-center gap-4">
-            <div className="h-[1px] w-12 bg-gradient-to-l from-primary/50 to-transparent" />
-            <span className="text-[10px] font-light tracking-widest text-primary uppercase">
-              {mode === "uplink" ? "Uplink_Active" : "Returning"}
+        {/* CORE SIGNAL INDICATOR */}
+        <div className="relative mb-8 flex size-20 items-center justify-center">
+          <motion.div
+            animate={{
+              rotate: mode === "uplink" ? 180 : -180,
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute size-full border border-dashed border-primary/60 rounded-sm"
+          />
+          <div className="size-2 bg-primary shadow-[0_0_15px_var(--primary)] rotate-45" />
+        </div>
+
+        {/* DATA STREAM IDENTITY */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="size-1 bg-primary animate-pulse" />
+            <span className="text-[8px] font-black tracking-[0.6em] text-primary uppercase">
+              {mode === "uplink" ? "Establish_Data_Link" : "Close_Archive_Sync"}
             </span>
-            <div className="h-[1px] w-12 bg-gradient-to-r from-primary/50 to-transparent" />
+          </div>
+
+          <div className="flex items-center gap-6">
+            <span className="text-[6px] text-primary/30 font-mono tracking-widest">
+              TX_BUFF_04
+            </span>
+            <div className="h-[1px] w-32 bg-primary/10 relative overflow-hidden">
+               {/* THE ACTUAL PROGRESS TRACE */}
+               <motion.div
+                initial={{ x: mode === "uplink" ? "-100%" : "100%" }}
+                animate={{ x: "0%" }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                onAnimationComplete={onComplete}
+                className="h-full w-full bg-primary shadow-[0_0_10px_var(--primary)]"
+              />
+            </div>
+            <span className="text-[6px] text-primary/30 font-mono tracking-widest">
+              {mode === "uplink" ? "MODE_EXPLORE" : "MODE_INDEX"}
+            </span>
           </div>
         </div>
 
-        {/* Ultra-Slim Progress Trace */}
-        <div className="relative h-px w-48 overflow-hidden bg-primary/5">
-          <motion.div
-            initial={{ x: mode === "uplink" ? "-100%" : "100%" }}
-            animate={{ x: "0%" }}
-            transition={{ duration: 0.6, ease: "circOut" }}
-            onAnimationComplete={onComplete}
-            className="h-full w-full bg-primary"
-          />
+        {/* SIDE DATA BITS (Vertical coordinates) */}
+        <div className="absolute -right-24 top-1/2 -translate-y-1/2 flex flex-col gap-4 opacity-20">
+           <div className="h-12 w-px bg-gradient-to-b from-transparent via-primary to-transparent" />
+           <span className="text-[6px] [writing-mode:vertical-lr] tracking-[0.5em] uppercase">Bit_Stream_Active</span>
         </div>
 
-        {/* Moving Binary bits (Faint) */}
-        <div className="absolute -bottom-12 flex gap-6 opacity-10">
-          {[...Array(3)].map((_, i) => (
-            <motion.span
+        <div className="absolute -left-24 top-1/2 -translate-y-1/2 flex flex-col items-end gap-4 opacity-20">
+           <span className="text-[6px] [writing-mode:vertical-lr] rotate-180 tracking-[0.5em] uppercase">Auth_Encrypted_RSA</span>
+           <div className="h-12 w-px bg-gradient-to-b from-transparent via-primary to-transparent" />
+        </div>
+
+        {/* BOTTOM METADATA PIPS */}
+        <div className="mt-12 flex gap-2">
+          {[...Array(5)].map((_, i) => (
+            <motion.div
               key={i}
-              animate={{ y: [0, -20], opacity: [0, 1, 0] }}
-              transition={{ duration: 1, repeat: Infinity, delay: i * 0.3 }}
-              className="text-[7px] text-primary"
-            >
-              0x{Math.floor(Math.random() * 255).toString(16)}
-            </motion.span>
+              animate={{
+                backgroundColor: ["rgba(var(--primary-rgb), 0.1)", "rgba(var(--primary-rgb), 0.8)", "rgba(var(--primary-rgb), 0.1)"]
+              }}
+              transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
+              className="h-1 w-4 bg-primary/10"
+            />
           ))}
         </div>
       </div>
     </motion.div>
   )
 }
-
-export { DataUplink, SystemLoader }

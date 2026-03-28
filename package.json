@@ -25,6 +25,7 @@
     "typescript": "^6.0.2"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
     "@tanstack/react-devtools": "^0.10.0",
     "web": "^0.0.2"
   },

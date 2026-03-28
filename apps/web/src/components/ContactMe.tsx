@@ -9,288 +9,270 @@ import {
   Broadcast,
   ShieldCheck,
   Target,
-  TerminalWindow,
-  GraphIcon
-} from "@phosphor-icons/react"
-import { cn } from "@portfolio/ui/lib/utils"
 
-export default function ContactForm() {
+  Cpu,
+  Globe,
+  HardDrives,
+  Pulse,
+  PlugsConnected,
+  ChartLineUp
+} from "@phosphor-icons/react"
+
+const inputClasses =
+  "w-full border border-primary/10 bg-muted/5 px-4 py-3 font-mono text-xs transition-all outline-none " +
+  "placeholder:text-primary/20 focus:border-primary/40 focus:bg-primary/5 text-primary"
+
+// --- COMPONENT 1: SYSTEM ANALYTICS & VOX NODE ---
+function SystemMetricsNode() {
+  const sparklineData = useMemo(() =>
+    [...Array(32)].map(() => Math.floor(Math.random() * 50) + 10),
+  [])
+
+  return (
+    <motion.div className="group relative w-full overflow-hidden border border-primary/10 bg-background/20 p-8 md:p-12 transition-all shadow-2xl flex flex-col justify-between">
+      {/* CORNER CROSSHAIRS */}
+      <div className="absolute top-2 left-2 size-4 border-t border-l border-primary/20" />
+      <div className="absolute top-2 right-2 size-4 border-t border-r border-primary/20" />
+      <div className="absolute bottom-2 left-2 size-4 border-b border-l border-primary/20" />
+      <div className="absolute bottom-2 right-2 size-4 border-b border-r border-primary/20" />
+
+      {/* BACKGROUND SCAN GRID */}
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03] bg-[linear-gradient(to_right,var(--primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--primary)_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+      <div className="relative z-20 flex justify-between items-start mb-10">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Pulse size={14} className="text-primary animate-pulse" />
+            <span className="text-[8px] font-mono tracking-[0.4em] text-primary/40 uppercase font-bold">NODE_MONITOR_V3.2</span>
+          </div>
+          <h2 className="text-4xl uppercase tracking-tighter text-foreground font-black">Analytics</h2>
+          <div className="h-[1px] w-24 bg-primary/20" />
+        </div>
+        <div className="text-right">
+            <span className="text-[6px] text-primary/30 uppercase tracking-[0.3em] block">Uptime: 99.99%</span>
+            <span className="text-[6px] text-primary/30 uppercase tracking-[0.3em] block">Status: Optimal</span>
+        </div>
+      </div>
+
+      <div className="relative z-20 space-y-6 flex-1">
+        {/* VOX WAVELENGTH ANIMATION */}
+        <div className="border border-primary/10 bg-primary/5 p-6 relative overflow-hidden group/vox">
+            <div className="absolute top-0 right-0 bg-primary/10 px-2 py-0.5 text-[5px] text-primary/60 uppercase font-bold">Comm_Link_Active</div>
+            <div className="flex items-center justify-center h-16 w-full">
+                <svg viewBox="0 0 200 60" className="w-full h-full text-primary/60">
+                    <line x1="0" y1="30" x2="200" y2="30" stroke="currentColor" strokeWidth="0.2" strokeDasharray="2 4" opacity="0.2" />
+                    {[...Array(4)].map((_, i) => (
+                        <motion.path
+                            key={i}
+                            d="M 0 30 Q 25 10, 50 30 T 100 30 T 150 30 T 200 30"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={i === 1 ? "1.2" : "0.5"}
+                            opacity={i === 1 ? "0.9" : "0.2"}
+                            animate={{
+                                d: [
+                                    "M 0 30 Q 25 5, 50 30 T 100 30 T 150 30 T 200 30",
+                                    "M 0 30 Q 25 55, 50 30 T 100 30 T 150 30 T 200 30",
+                                    "M 0 30 Q 25 5, 50 30 T 100 30 T 150 30 T 200 30"
+                                ]
+                            }}
+                            transition={{
+                                duration: 1.5 + i,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    ))}
+                </svg>
+            </div>
+        </div>
+
+        {/* METRICS ROW */}
+        <div className="grid grid-cols-2 gap-4">
+            <div className="border border-primary/5 p-4 flex flex-col gap-1 relative overflow-hidden">
+                <div className="absolute top-0 right-0 size-1 bg-primary/20" />
+                <div className="flex items-center gap-2">
+                    <Cpu size={12} className="text-primary/40" />
+                    <span className="text-[7px] text-primary/40 uppercase font-bold">System Load</span>
+                </div>
+                <span className="text-xl font-black tabular-nums tracking-tighter text-primary">42.8%</span>
+            </div>
+            <div className="border border-primary/5 p-4 flex flex-col gap-1 relative overflow-hidden">
+                <div className="absolute top-0 right-0 size-1 bg-primary/20" />
+                <div className="flex items-center gap-2">
+                    <Broadcast size={12} className="text-primary/40" />
+                    <span className="text-[7px] text-primary/40 uppercase font-bold">Uplink Rate</span>
+                </div>
+                <span className="text-xl font-black tabular-nums tracking-tighter text-primary">1.2GB/s</span>
+            </div>
+        </div>
+
+        {/* DATA PACKET STREAM */}
+        <div className="border border-primary/10 p-5 bg-background/20 relative">
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                    <div className="size-1 bg-primary animate-ping" />
+                    <span className="text-[8px] uppercase font-bold tracking-[0.2em] text-primary/60">Data_Packets</span>
+                </div>
+                <span className="text-[6px] font-mono text-primary/20 tracking-widest">HEX_BUFF_0XFF</span>
+            </div>
+            <div className="h-10 w-full flex items-end gap-[2px]">
+                {sparklineData.map((val, i) => (
+                    <motion.div
+                        key={i}
+                        animate={{ height: [`${val}%`, `${Math.random() * 95 + 5}%`, `${val}%`] }}
+                        transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.04 }}
+                        className="flex-1 bg-primary/10 hover:bg-primary/40 transition-colors"
+                    />
+                ))}
+            </div>
+        </div>
+      </div>
+
+      {/* FOOTER DECOR */}
+      <div className="relative z-20 pt-8 mt-6 border-t border-primary/10 flex justify-between items-center">
+        <div className="flex gap-8">
+            <div className="space-y-1">
+                <span className="text-[5px] uppercase tracking-widest text-primary/40 block">Encryption</span>
+                <span className="text-[8px] font-bold font-mono text-primary/60">AES_256_GCM</span>
+            </div>
+            <div className="space-y-1">
+                <span className="text-[5px] uppercase tracking-widest text-primary/40 block">Protocol</span>
+                <span className="text-[8px] font-bold font-mono text-primary/60">WSS_SECURE</span>
+            </div>
+        </div>
+        <div className="flex items-center gap-4">
+             <div className="flex gap-1">
+                {[...Array(4)].map((_, i) => <div key={i} className="h-1.5 w-[1px] bg-primary/40" />)}
+             </div>
+             <PlugsConnected size={14} className="text-primary/40" />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// --- COMPONENT 2: CONTACT FORM ---
+function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success">("idle")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setStatus("sending")
-    // Artificial delay for the "Uplink" feel
     setTimeout(() => setStatus("success"), 2200)
   }
 
-  const inputClasses =
-    "w-full border border-primary/10 bg-muted/20 px-4 py-3 font-mono text-sm transition-all outline-none " +
-    "placeholder:text-primary/80 focus:border-primary focus:bg-muted/40 text-primary"
-
   return (
-    <motion.div
-      whileHover="hover"
-      className="group relative w-full max-w-2xl overflow-hidden border border-primary/12 bg-background/40 p-8 md:p-12 transition-all shadow-2xl"
-    >
-
-      {/* --- 1. VECTOR ORBITAL (Parent Triggered) --- */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 opacity-[0.05] transition-opacity duration-1000 group-hover:opacity-20">
-        <svg
-          viewBox="0 0 100 100"
-          className="h-full w-full text-primary"
-        >
-          {/* 1. OUTER STATIC BOUNDARY */}
-          <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" strokeDasharray="1 4" />
-
-          {/* 2. INNER ROTATING RINGS (Nested) */}
-          {[
-            { r: 35, dash: "2 6", speed: 40, rev: false }, // Outer ring
-            { r: 22, dash: "10 5", speed: 25, rev: true }, // Middle ring (Reverse)
-            { r: 10, dash: "1 2", speed: 15, rev: false }, // Core ring
-          ].map((ring, i) => (
-            <motion.circle
-              key={i}
-              cx="50"
-              cy="50"
-              r={ring.r}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="0.15"
-              strokeDasharray={ring.dash}
-              animate={{ rotate: ring.rev ? -360 : 360 }}
-              transition={{
-                duration: ring.speed,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{ originX: "50px", originY: "50px" }}
-            />
-          ))}
-
-          {/* 3. CENTER TARGET POINT */}
-          <circle cx="50" cy="50" r="0.5" fill="currentColor" />
-        </svg>
-      </div>
-
+    <motion.div className="group relative w-full overflow-hidden border border-primary/10 bg-background/20 p-8 md:p-12 transition-all shadow-2xl">
       <AnimatePresence mode="wait">
         {status !== "success" ? (
-          <motion.div
-            key="form-view"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="space-y-10"
-          >
-            {/* HEADER */}
-            <div className="relative z-20 flex justify-between items-start">
-              <div className="space-y-3">
+          <motion.div key="form" initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-10">
+            <div className="flex justify-between items-start">
+              <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Broadcast size={14} className="text-primary/60 animate-pulse" />
-                  <span className="text-[9px] font-mono tracking-[0.4em] text-primary/40 uppercase font-bold">Protocol_v3</span>
+                  <Target size={14} className="text-primary/60 animate-pulse" />
+                  <span className="text-[8px] font-mono tracking-[0.4em] text-primary/40 uppercase font-bold">COMM_CHANNEL_V3</span>
                 </div>
-                <h2 className="text-5xl uppercase tracking-tighter text-foreground leading-none">Contact Me</h2>
-                <p className="text-[10px] text-muted-foreground/80 uppercase tracking-widest italic leading-tight">
+                <h2 className="text-5xl uppercase tracking-tighter text-foreground font-black leading-none">Contact Me</h2>
+                <p className="text-[9px] text-primary/60 uppercase tracking-[0.2em] font-medium max-w-xs">
                   Ready to start a new project or just say hi.
                 </p>
               </div>
-              <div className="text-[7px] text-primary/10 uppercase tracking-[0.5em] [writing-mode:vertical-rl] h-16">System_Ready</div>
+              <div className="flex flex-col items-end gap-2">
+                <div className="text-[6px] text-primary/20 uppercase tracking-[0.6em] [writing-mode:vertical-rl] h-20 border-r border-primary/10 pr-2">Link_Stable</div>
+                <div className="size-1.5 bg-primary/20 rounded-full" />
+              </div>
             </div>
 
-            {/* FORM */}
-            <form onSubmit={handleSubmit} className="relative z-20 space-y-10">
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                <input required type="email" placeholder="IDENTITY@NODE.COM" className={inputClasses} />
-                <select className={inputClasses}>
-                  <option className="bg-background">FULL-STACK_DEV</option>
-                  <option className="bg-background">BACKEND_SYSTEMS</option>
-                </select>
+            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <span className="text-[6px] text-primary/30 uppercase ml-1">Email_Identity</span>
+                  <input required type="email" placeholder="IDENTITY@DOMAIN.COM" className={inputClasses} />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[6px] text-primary/30 uppercase ml-1">Subject_Node</span>
+                  <select className={inputClasses}>
+                    <option className="bg-background">Full-Stack Development</option>
+                    <option className="bg-background">Backend Systems</option>
+                    <option className="bg-background">UI/UX Interface</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[6px] text-primary/30 uppercase ml-1">Message_Payload</span>
+                <textarea required rows={4} placeholder="Type your message here..." className={`${inputClasses} resize-none`} />
               </div>
 
-              <textarea required rows={4} placeholder="HOW CAN I ASSIST?" className={`${inputClasses} resize-none`} />
-
-              {/* --- REDESIGNED FROM SCRATCH: THE COMMAND TRIGGER --- */}
-              <div className="relative group/cmd w-full max-w-xl">
-                {/* 1. TOP LABEL: DATA PACKET INFO */}
-                <div className="flex justify-between items-end mb-2 px-1">
-                  <div className="flex items-center gap-2">
-                    <div className="size-1 bg-primary animate-pulse" />
-                    <span className="text-[8px] uppercase tracking-[0.4em] text-primary/40 font-bold">
-                      {status === "sending" ? "Uplink_In_Progress" : "Ready_For_Deployment"}
-                    </span>
-                  </div>
-                  <span className="text-[7px] text-primary/20 font-mono">
-                    0x{Math.floor(Math.random() * 1000).toString(16).toUpperCase()} // BUF_82
-                  </span>
-                </div>
-
-                {/* 2. THE MAIN TRIGGER BUTTON */}
+              <div className="relative group/btn w-full pt-4">
                 <motion.button
-                  type="submit"
                   disabled={status === "sending"}
-                  className={cn(
-                    "relative w-full h-14 flex items-center overflow-hidden border transition-all duration-300",
-                    status === "sending"
-                      ? "border-primary/20 bg-primary/5 cursor-wait"
-                      : "border-primary/40 bg-transparent hover:border-primary group-hover/cmd:shadow-[0_0_20px_rgba(var(--primary),0.1)]"
-                  )}
+                  className="relative w-full h-14 flex items-center overflow-hidden border border-primary/20 bg-transparent hover:border-primary/60 transition-all"
                 >
-                  {/* HOVER SLIDE FILL */}
-                  <div className="absolute inset-0 w-full h-full bg-primary/80 -translate-x-full group-hover/cmd:translate-x-0 transition-transform duration-500 ease-out" />
-
-                  {/* LEFT INDICATOR GASKET */}
-                  <div className="relative z-20 h-full w-14 border-r border-primary/20 flex items-center justify-center bg-background/20 backdrop-blur-md">
-                    {status === "sending" ? (
-                      <CircleNotch size={20} className="animate-spin text-primary" />
-                    ) : (
-                      <Target size={20} className="text-primary group-hover/cmd:text-background transition-colors" />
-                    )}
+                  <div className="absolute inset-0 w-full h-full bg-primary/90 -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-500 ease-out" />
+                  <div className="relative z-10 h-full w-14 border-r border-primary/10 flex items-center justify-center bg-background/20">
+                    {status === "sending" ? <CircleNotch size={18} className="animate-spin text-primary" /> : <ArrowRight size={18} className="group-hover/btn:text-background group-hover/btn:translate-x-1 transition-all" />}
                   </div>
-
-                  {/* CONTENT AREA */}
-                  <div className="relative z-20 flex-1 flex items-center justify-between px-6">
-                    <div className="flex flex-col items-start">
-                      <span className={cn(
-                        "text-[11px] font-black uppercase tracking-[0.5em] transition-colors duration-300",
-                        "group-hover/cmd:text-background text-primary"
-                      )}>
-                        {status === "sending" ? "Transmitting..." : "Initialize_Uplink"}
-                      </span>
-                      <span className="text-[6px] uppercase tracking-[0.2em] text-primary/40 group-hover/cmd:text-background/50 transition-colors">
-                        Security_Protocol: Enabled // RSA_4096
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                       <div className="hidden md:flex flex-col items-end gap-1">
-                          {[...Array(3)].map((_, i) => (
-                            <div key={i} className="h-[1px] w-4 bg-primary/20 group-hover/cmd:bg-background/20" />
-                          ))}
-                       </div>
-                       <ArrowRight size={18} className="text-primary group-hover/cmd:text-background group-hover/cmd:translate-x-1 transition-all" />
-                    </div>
-                  </div>
-
-                  {/* DECORATIVE SCAN LINE (Subtle pulse) */}
-
+                  <span className="relative z-10 flex-1 text-[10px] font-black uppercase tracking-[0.6em] group-hover/btn:text-background transition-colors text-center">
+                    {status === "sending" ? "Transmitting..." : "Initialize Uplink"}
+                  </span>
                 </motion.button>
-
-                {/* 3. BOTTOM DECOR: BIT-STREAM INDICATOR */}
-                <div className="mt-2 flex gap-1 h-1 w-full opacity-30 group-hover/cmd:opacity-100 transition-opacity">
-                  {[...Array(12)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      animate={status === "sending" ? {
-                        backgroundColor: ["rgba(var(--primary), 0.1)", "rgba(var(--primary), 1)", "rgba(var(--primary), 0.1)"]
-                      } : {}}
-                      transition={{ delay: i * 0.1, duration: 0.8, repeat: Infinity }}
-                      className="flex-1 bg-primary/20"
-                    />
-                  ))}
-                </div>
               </div>
             </form>
           </motion.div>
         ) : (
-          /* --- SUCCESS STATE: COMMUNICATION CHANNEL OPEN --- */
-          <motion.div
-            key="success-view"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="relative z-20 pt-16 pb-6 flex flex-col items-center text-center space-y-12"
-          >
-            {/* 1. TOP DECOR: SYSTEM STAMP */}
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <ShieldCheck size={48} weight="thin" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center text-center space-y-8 py-12">
+            <div className="size-24 rounded-full border border-primary/10 flex items-center justify-center bg-primary/5 relative">
+              <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping opacity-20" />
+              <ShieldCheck size={40} weight="thin" className="text-primary" />
             </div>
-
-            {/* 2. VOX RADIO WAVE VISUAL */}
-            <div className="relative flex flex-col items-center gap-6">
-              <div className="size-28 rounded-full border-2 border-primary/20 flex items-center justify-center relative bg-muted/20 backdrop-blur-md">
-                 <div className="absolute inset-2 rounded-full border border-primary/10" />
-
-                 {/* --- DYNAMIC VOX WAVE --- */}
-                 <svg viewBox="0 0 100 60" className="w-16 h-auto text-primary" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="5" y1="30" x2="95" y2="30" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 3" className="opacity-30" />
-                    {[...Array(3)].map((_, i) => (
-                       <motion.path
-                          key={i}
-                          d="M 5 30 Q 25 10, 50 30 T 95 30"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                          className="opacity-80"
-                          animate={{ d: [
-                              "M 5 30 Q 25 10, 50 30 T 95 30",
-                              "M 5 30 Q 25 50, 50 30 T 95 30",
-                              "M 5 30 Q 25 10, 50 30 T 95 30"
-                          ] }}
-                          transition={{
-                             duration: 1.5 + (i * 0.3),
-                             repeat: Infinity,
-                             ease: "easeInOut",
-                             delay: i * 0.2
-                          }}
-                       />
-                    ))}
-                 </svg>
-              </div>
-
-              <div className="space-y-2 border-b border-primary/10 pb-4">
-                <div className="flex items-center justify-center gap-3">
-                   <div className="h-[1px] w-8 bg-primary/20" />
-                   <span className="text-[10px] uppercase tracking-[0.5em] text-primary">Channel_Established</span>
-                   <div className="h-[1px] w-8 bg-primary/20" />
-                </div>
-                <h3 className="text-5xl uppercase tracking-tighter text-foreground/90 leading-none">Transmission_Success</h3>
-                <p className="text-[8px] uppercase tracking-widest text-primary/20 italic font-mono">Uplink_Frequency_92.4 // {new Date().toLocaleTimeString()}</p>
-              </div>
+            <div className="space-y-3">
+              <h3 className="text-4xl font-black uppercase tracking-tighter">Transmission Success</h3>
+              <p className="text-[8px] uppercase tracking-widest text-primary/40 font-mono font-bold">Log_ID: 0x{Math.floor(Math.random() * 1000).toString(16).toUpperCase()} // {new Date().toLocaleTimeString()}</p>
             </div>
-
-            {/* 3. RESPONSE MESSAGE */}
-            <div className="relative group max-w-sm border-l border-primary/30 bg-muted/10 p-6 space-y-3">
-               <div className="absolute top-0 right-0 size-1.5 border-t border-r border-primary/20 opacity-40 group-hover:opacity-100 transition-opacity" />
-               <div className="absolute bottom-0 right-0 size-1.5 border-b border-r border-primary/20 opacity-40 group-hover:opacity-100 transition-opacity" />
-
-               <p className="text-xs uppercase leading-relaxed text-foreground/80 tracking-tight text-left">
-                  Message has been successfully logged to the secure archive. I will process your inquiry and provide a response via the provided uplink shortly.
-               </p>
-               <div className="pt-2 flex items-center justify-between text-[8px] uppercase tracking-widest text-primary/30 border-t border-primary/5">
-                  <span className="font-bold">- Alexandru Paduret</span>
-                  <span className="italic">Auto_Response</span>
-               </div>
-            </div>
-
-            {/* 4. FOOTER: FIXED RESET */}
-            <button
-              onClick={() => setStatus("idle")}
-              className="relative group flex items-center gap-3 border border-primary/10 px-6 py-2 transition-all hover:bg-primary/5 hover:border-primary/30"
-            >
-              <div className="size-1.5 bg-primary animate-pulse" />
-              <span className="text-[10px] uppercase tracking-[0.4em] text-primary/40 group-hover:text-primary transition-colors font-medium">Reset_Terminal_Session</span>
-            </button>
+            <button onClick={() => setStatus("idle")} className="text-[8px] uppercase tracking-[0.5em] border border-primary/10 px-8 py-2 hover:bg-primary/5 transition-all font-bold">Return to Terminal</button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* --- FOOTER: MANUAL OVERRIDE --- */}
-      <div className="relative z-20 mt-16 pt-8 border-t border-primary/10">
-        <a href="mailto:contact-me@pixlized.net" className="flex items-center justify-between group/mail">
+      <div className="mt-14 pt-8 border-t border-primary/10 group/mail">
+        <a href="mailto:contact-me@pixlized.net" className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 border border-primary/20 bg-primary/5 text-primary group-hover/mail:bg-primary group-hover/mail:text-background transition-colors">
-              <EnvelopeSimple size={20} />
+            <div className="p-3 border border-primary/10 bg-primary/5 text-primary group-hover/mail:bg-primary group-hover/mail:text-background transition-all">
+                <EnvelopeSimple size={18} />
             </div>
             <div className="flex flex-col">
-              <span className="text-[8px] uppercase tracking-[0.4em] text-primary/40 font-mono italic">Manual_Uplink</span>
-              <span className="font-mono text-sm tracking-widest text-foreground group-hover:text-primary transition-colors italic">contact-me@pixlized.net</span>
+                <span className="text-[6px] uppercase tracking-[0.4em] text-primary/30 font-bold">Manual Uplink</span>
+                <span className="font-mono text-sm text-foreground/80 group-hover:text-primary transition-colors">contact-me@pixlized.net</span>
             </div>
           </div>
-          <div className="flex items-center gap-3 opacity-20 group-hover:opacity-100 transition-opacity">
-            <span className="text-[7px] uppercase tracking-[0.5em] hidden sm:block">Identity_Verified</span>
-            <ShieldCheck size={20} />
+          <div className="flex items-center gap-2 opacity-0 group-hover/mail:opacity-100 transition-all">
+             <span className="text-[6px] uppercase tracking-widest text-primary/40">Launch Mailer</span>
+             <ArrowRight size={14} className="translate-x-0 group-hover/mail:translate-x-2 transition-all text-primary" />
           </div>
         </a>
       </div>
     </motion.div>
-  );
+  )
+}
+
+export default function ContactSection() {
+  return (
+    <section className="w-full max-w-7xl mx-auto px-6 py-24">
+      {/* On mobile: grid-cols-1 centers the form.
+        On desktop: lg:grid-cols-2 puts them side-by-side.
+      */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch max-w-2xl lg:max-w-none mx-auto">
+        <ContactForm />
+
+        {/* We wrap the node in a div or add classes directly to it.
+          'hidden' hides it by default (mobile/tablet).
+          'lg:flex' shows it as a flex container on desktop.
+        */}
+        <div className="hidden lg:flex w-full">
+          <SystemMetricsNode />
+        </div>
+      </div>
+    </section>
+  )
 }
