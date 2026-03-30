@@ -22,20 +22,13 @@ import {
   Broadcast
 } from "@phosphor-icons/react"
 import { useMusicTab } from "@/lib/BrowserTab"
+import { useStore } from "@tanstack/react-store"
+import { systemStore } from "@/lib/data.store"
 
 // --- ROUTE & LOADER ---
 
 export const Route = createFileRoute("/albums")({
-  loader: async () => {
-    try {
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-      const res = await fetch(`${API_URL}/music`);
-      return res.ok ? res.json() : [];
-    } catch (e) {
-      console.error("API Error:", e);
-      return [];
-    }
-  },
+
   component: MusicPage,
 })
 
@@ -48,13 +41,6 @@ function useHasMounted() {
 }
 
 // --- DECORATIVE SUB-COMPONENTS ---
-
-const CornerBrackets = () => (
-  <>
-    <div className="absolute top-0 left-0 size-2 border-t-2 border-l-2 border-primary/40 group-hover:border-primary transition-colors" />
-    <div className="absolute bottom-0 right-0 size-2 border-b-2 border-r-2 border-primary/40 group-hover:border-primary transition-colors" />
-  </>
-)
 
 const BackgroundDecoration = () => (
   <div className="pointer-events-none fixed inset-0 z-0">
@@ -293,7 +279,6 @@ const AudioDecoder = ({ track, isPlaying, setIsPlaying, volume, setVolume, onBac
 // --- MAIN PAGE ---
 
 export default function MusicPage() {
-  const albums = Route.useLoaderData()
   const [booting, setBooting] = useState(true)
   const [activeAlbum, setActiveAlbum] = useState<any | null>(null)
   const [activeTrack, setActiveTrack] = useState<any>(null)
@@ -301,6 +286,8 @@ export default function MusicPage() {
   const [volume, setVolume] = useState(80)
 
   const mounted = useHasMounted()
+
+  const albums = useStore(systemStore, (state) => state.albums)
 
   useMusicTab({
     isPlaying,
