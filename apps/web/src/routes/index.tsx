@@ -7,7 +7,7 @@ import { ArrowDown } from "@phosphor-icons/react"
 import { useStore } from "@tanstack/react-store"
 
 // Internal Libs
-import { systemStore } from "@/lib/data.store"
+import { fetchSystemData, systemStore } from "@/lib/data.store"
 import { useBrowserTab } from "@/lib/BrowserTab"
 
 // Components
@@ -104,8 +104,24 @@ function App() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
 
   // System Store Subscription
-  const feedbacks = useStore(systemStore, (s) => s.testimonials)
+  // System Store Subscription
+    const feedbacks = useStore(systemStore, (s) => s.testimonials)
 
+    // --- ADD THIS EFFECT ---
+    useEffect(() => {
+      const initializeData = async () => {
+        // Only fetch if testimonials are empty to avoid double-fetching
+        if (feedbacks.length === 0) {
+          try {
+            await fetchSystemData() // This should update the systemStore
+          } catch (err) {
+            console.error("DATA_SYNC_FAILURE:", err)
+          }
+        }
+      };
+
+      initializeData();
+    }, [])
   // Scroll Engine
   const { scrollYProgress } = useScroll({
     container: container ? { current: container } : undefined,
