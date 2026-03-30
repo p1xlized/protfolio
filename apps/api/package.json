@@ -10,11 +10,12 @@
     "with-env": "bun --env-file=../../.env --"
   },
   "dependencies": {
-    "elysia": "latest",
     "@elysiajs/cors": "latest",
-
-    "drizzle-orm": "latest",
     "@portfolio/db": "workspace:*",
+    "@portfolio/types": "workspace:*",
+    "drizzle-orm": "latest",
+    "elysia": "latest",
+    "resend": "^6.9.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {

@@ -1,114 +1,133 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback, useMemo } from "react"
 import { createFileRoute } from "@tanstack/react-router"
-import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion"
+import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-motion"
 import { ArrowDown } from "@phosphor-icons/react"
+import { useStore } from "@tanstack/react-store"
+
+// Internal Libs
+import { systemStore } from "@/lib/data.store"
+import { useBrowserTab } from "@/lib/BrowserTab"
 
 // Components
-import Profile from "@/components/Profile"
-import { SystemLoader } from "@/components/Loader"
+import Profile from "@/components/Profile/Profile"
+import { SystemLoader } from "@/components/Loaders/Loader"
 import ContactSection from "@/components/ContactMe"
-import TestimonialsNode from "@/components/Testimonials" // Your new component
-import { useBrowserTab } from "@/lib/BrowserTab"
-import SpaceParallax from "@/components/SpaceParallax"
+import TestimonialsNode from "@/components/Testimonials"
+import SpaceParallax from "@/components/BackgroundEffects/SpaceParallax"
 
+// --- 1. STATIC DECORATIONS (Rendered Once) ---
+const GaugeDecoration = React.memo(() => (
+  <>
+    {/* Left Side: Ruler Ticks & Hex Readouts */}
+    <div className="absolute right-4 flex flex-col justify-between h-72 py-0 opacity-30 pointer-events-none">
+      {[...Array(16)].map((_, i) => (
+        <div key={i} className="flex items-center justify-end gap-1.5 w-8">
+          <span className="text-[5px] font-mono">
+            {i % 5 === 0 ? `0x0${i.toString(16).toUpperCase()}` : ""}
+          </span>
+          <div className={`h-[1px] bg-primary ${i % 5 === 0 ? "w-3" : "w-1"}`} />
+        </div>
+      ))}
+    </div>
+
+    {/* Right Side: Vertical Labeling */}
+    <div className="absolute -right-4 flex flex-col items-center h-72 justify-center opacity-20 pointer-events-none">
+      <div className="text-[6px] tracking-[0.6em] [writing-mode:vertical-rl] font-mono font-black rotate-180">
+        ALIGN::TGT_LOCK
+      </div>
+    </div>
+  </>
+))
+
+// --- 2. ISOLATED HUD COMPONENTS ---
+const TimeDisplay = React.memo(() => {
+  const [time, setTime] = useState("")
+  useEffect(() => {
+    const t = () => setTime(new Date().toLocaleTimeString("en-GB", { hour12: false }))
+    t(); const i = setInterval(t, 1000); return () => clearInterval(i)
+  }, [])
+  return <div className="text-[12px] font-black tabular-nums leading-none">{time}</div>
+})
+
+const ScrollGauge = React.memo(({ active }: { active: string }) => (
+  <div className="fixed top-1/2 right-8 z-50 -translate-y-1/2 hidden md:flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-1.5 opacity-40">
+      <div className="flex items-center gap-1">
+        <div className="size-1 bg-primary animate-pulse" />
+        <div className="h-[2px] w-6 bg-primary" />
+      </div>
+      <span className="text-[6px] tracking-[0.4em] font-black uppercase">Nav_Track</span>
+    </div>
+
+    <div className="relative flex items-center justify-center w-20">
+      <GaugeDecoration />
+
+      <div className="flex flex-col items-center gap-2">
+        <div className="size-2 border border-primary/50 flex items-center justify-center opacity-60">
+          <div className="size-[2px] bg-primary" />
+        </div>
+
+        {/* SPRING INDICATOR TRACK */}
+        <div className="relative h-72 w-[2px] bg-primary/10 rounded-full">
+          <motion.div
+            initial={false}
+            animate={{
+              scaleY: active === "PROFILE" ? 0 : active === "TESTIMONIALS" ? 0.5 : 1,
+              opacity: [0.6, 1, 0.8],
+            }}
+            transition={{
+              scaleY: { type: "spring", stiffness: 70, damping: 18, mass: 0.8 },
+              opacity: { duration: 0.4 }
+            }}
+            style={{ originY: 0 }}
+            className="absolute top-0 w-full h-full bg-primary shadow-[0_0_15px_var(--primary)]"
+          />
+        </div>
+
+        <div className="size-2 border border-primary/50 flex items-center justify-center opacity-60">
+          <div className="size-[2px] bg-primary animate-ping" />
+        </div>
+      </div>
+    </div>
+  </div>
+))
+
+// --- 3. MAIN ROUTE & COMPONENT ---
 export const Route = createFileRoute("/")({ component: App })
-
-// Updated section mapping: PROFILE -> TESTIMONIALS -> CONTACT
 const SECTIONS = ["PROFILE", "TESTIMONIALS", "CONTACT"]
 
 function App() {
   const [loading, setLoading] = useState(true)
-  const [time, setTime] = useState("")
   const [activeSection, setActiveSection] = useState("PROFILE")
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
-  const [screen, setScreen] = useState<"desktop" | "tablet" | "mobile">("desktop")
 
-  // --- 1. SYSTEM MONITORING ---
-  useEffect(() => {
-    const updateTime = () => setTime(new Date().toLocaleTimeString("en-GB", { hour12: false }))
-    const updateScreen = () => {
-      const w = window.innerWidth
-      setScreen(w >= 1024 ? "desktop" : w >= 768 ? "tablet" : "mobile")
-    }
+  // System Store Subscription
+  const feedbacks = useStore(systemStore, (s) => s.testimonials)
 
-    updateTime()
-    updateScreen()
-
-    const t = setTimeout(() => setLoading(false), 5000)
-    const interval = setInterval(updateTime, 1000)
-    window.addEventListener("resize", updateScreen)
-
-    return () => {
-      clearTimeout(t)
-      clearInterval(interval)
-      window.removeEventListener("resize", updateScreen)
-    }
-  }, [])
-
-  useBrowserTab({
-    section: activeSection,
-    appSuffix: "x_x",
-    switchInterval: 2000,
-    spinnerInterval: 150,
-  })
-
-  // --- 2. SCROLL ENGINE ---
+  // Scroll Engine
   const { scrollYProgress } = useScroll({
     container: container ? { current: container } : undefined,
   })
 
-  const scaleY = useSpring(scrollYProgress, { stiffness: 100, damping: 30 })
-
-  useEffect(() => {
-    if (!container || loading) return
-
-    const handleScroll = () => {
-      const index = Math.round(container.scrollTop / container.offsetHeight)
-      if (SECTIONS[index] && activeSection !== SECTIONS[index]) {
-        setActiveSection(SECTIONS[index])
-      }
+  // Update active section label without re-rendering everything
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const index = Math.round(latest * (SECTIONS.length - 1))
+    if (SECTIONS[index] && activeSection !== SECTIONS[index]) {
+      setActiveSection(SECTIONS[index])
     }
-
-    container.addEventListener("scroll", handleScroll, { passive: true })
-    return () => container.removeEventListener("scroll", handleScroll)
-  }, [container, loading, activeSection])
+  })
 
   const smoothScrollTo = useCallback((index: number) => {
-    if (!container) return
-    container.scrollTo({
-      top: index * container.offsetHeight,
-      behavior: "smooth"
-    })
+    container?.scrollTo({ top: index * container.offsetHeight, behavior: "smooth" })
   }, [container])
 
-  // --- 3. INPUT HANDLERS ---
-  const handleNext = useCallback(() => {
-    const currentIndex = SECTIONS.indexOf(activeSection)
-    // FIX: Target CONTACT as the reboot trigger instead of TESTIMONIALS
-    smoothScrollTo(activeSection === "CONTACT" ? 0 : currentIndex + 1)
-  }, [activeSection, smoothScrollTo])
-
-  useEffect(() => {
-    const handleKeys = (e: KeyboardEvent) => {
-      if (!container || loading) return
-      const currentIndex = SECTIONS.indexOf(activeSection)
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault()
-        smoothScrollTo((currentIndex + 1) % SECTIONS.length)
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault()
-        smoothScrollTo((currentIndex - 1 + SECTIONS.length) % SECTIONS.length)
-      }
-    }
-    window.addEventListener("keydown", handleKeys)
-    return () => window.removeEventListener("keydown", handleKeys)
-  }, [container, activeSection, loading, smoothScrollTo])
+  // Browser Tab Metadata
+  useBrowserTab({ section: activeSection, appSuffix: "x_x" })
 
   return (
-    <div className="relative min-h-screen bg-background/20 text-primary font-mono selection:bg-primary/30 overflow-hidden uppercase">
+    <div className="relative min-h-screen bg-background/20 text-primary font-mono uppercase overflow-hidden selection:bg-primary/30">
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div key="loader" exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-background">
@@ -117,133 +136,187 @@ function App() {
         ) : (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
 
+            {/* STABLE BACKGROUND */}
             <SpaceParallax scrollYProgress={scrollYProgress} />
 
-            {/* --- HUD: STATIC BORDER LAYER --- */}
-            <div className="pointer-events-none fixed inset-0 z-50 p-4 opacity-20 hidden md:block">
-              <div className="absolute top-4 left-4 h-12 w-12 border-l border-t border-primary" />
-              <div className="absolute top-4 right-4 h-12 w-12 border-r border-t border-primary" />
-              <div className="absolute bottom-4 left-4 h-12 w-12 border-l border-b border-primary" />
-              <div className="absolute bottom-4 right-4 h-12 w-12 border-r border-b border-primary" />
-            </div>
-
-            {/* --- HUD: UPGRADED NAV GAUGES (NO SCALEY) --- */}
-            <div className="fixed top-1/2 right-8 z-50 -translate-y-1/2 hidden md:flex flex-col items-center gap-3">
-              {/* TOP STATUS HEADER */}
-              <div className="flex flex-col items-center gap-1.5 opacity-40">
-                <div className="flex items-center gap-1">
-                  <div className="size-1 bg-primary animate-pulse" />
-                  <div className="h-[2px] w-6 bg-primary" />
-                </div>
-                <span className="text-[6px] tracking-[0.4em] font-black uppercase">Nav_Track</span>
-              </div>
-
-              {/* MAIN GAUGE ASSEMBLY */}
-              <div className="relative flex items-center justify-center w-20">
-
-                {/* Left Side: Ruler Ticks & Hex Readouts */}
-                <div className="absolute right-4 flex flex-col justify-between h-72 py-0 opacity-30 pointer-events-none">
-                  {[...Array(16)].map((_, i) => (
-                    <div key={i} className="flex items-center justify-end gap-1.5 w-8">
-                      <span className="text-[5px] font-mono">
-                        {i % 5 === 0 ? `0x0${i}` : ""}
-                      </span>
-                      <div className={`h-[1px] bg-primary ${i % 5 === 0 ? "w-3" : "w-1"}`} />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Center: The Physical Scroll Track */}
-                <div className="flex flex-col items-center gap-2">
-                  <div className="size-2 border border-primary/50 flex items-center justify-center opacity-60">
-                     <div className="size-[2px] bg-primary" />
+            {/* HUD: HEADER */}
+            <header className="fixed inset-x-0 top-0 z-50 flex justify-between p-8 pointer-events-none select-none">
+              {/* LEFT: SYSTEM STATUS MODULE */}
+              <div className="relative flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="relative size-2">
+                    <div className="absolute inset-0 bg-primary animate-pulse rounded-full" />
+                    <div className="absolute inset-0 bg-primary animate-ping rounded-full opacity-40" />
                   </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black tracking-[0.3em] leading-none">
+                      P1XLIZED // {activeSection}
+                    </span>
 
-                  <div className="relative h-72 w-[2px] bg-primary/10 rounded-full overflow-hidden">
-                    {/* FIX: Reordered height states based on new flow */}
+                  </div>
+                </div>
+
+                {/* BITRATE / PACKET DECORATION */}
+                <div className="flex gap-0.5 opacity-20">
+                  {[...Array(12)].map((_, i) => (
                     <motion.div
-                      animate={{
-                        height: activeSection === "PROFILE" ? "0%" :
-                                activeSection === "TESTIMONIALS" ? "50%" :
-                                activeSection === "CONTACT" ? "100%" : "0%"
+                      key={i}
+                      animate={{ height: [2, 6, 3, 8, 2] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        delay: i * 0.1,
+                        ease: "easeInOut"
                       }}
-                      transition={{ duration: 0.6, ease: "circOut" }}
-                      className="absolute top-0 w-full bg-primary shadow-[0_0_12px_var(--primary)]"
+                      className="w-[1px] bg-primary"
                     />
-                  </div>
-
-                  <div className="size-2 border border-primary/50 flex items-center justify-center opacity-60">
-                     <div className="size-[2px] bg-primary animate-ping" />
-                  </div>
-                </div>
-
-                {/* Right Side: Vertical Labeling */}
-                <div className="absolute -right-4 flex flex-col items-center h-72 justify-center opacity-20 pointer-events-none">
-                  <div className="text-[6px] tracking-[0.6em] [writing-mode:vertical-rl] font-mono font-black rotate-180">
-                      ALIGN::TGT_LOCK
-                  </div>
+                  ))}
+                  <span className="ml-2 text-[5px] font-mono self-end">SYS_BITRATE::99.4%</span>
                 </div>
               </div>
 
-            </div>
 
-            {/* --- HUD: HEADER DATA --- */}
-            <header className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden md:flex justify-between p-8 items-start">
-              <div className="space-y-2">
-                <div className="flex gap-2 items-center">
-                  <div className="h-2 w-2 bg-primary animate-pulse" />
-                  <span className="text-[10px] font-bold tracking-[0.2em]">P1XLIZED // {screen.toUpperCase()}</span>
+              {/* RIGHT: CHRONO & LOC MODULE */}
+              <div className="flex gap-6 items-start">
+                {/* SYSTEM UPTIME DECO */}
+                <div className="text-right hidden sm:block opacity-40">
+                  <div className="text-[5px] tracking-widest leading-none mb-1">DATA_STREAM</div>
+                  <div className="flex flex-col gap-0.5">
+                    <div className="h-0.5 w-16 bg-primary/20 overflow-hidden">
+                      <motion.div
+                        animate={{ x: ["-100%", "100%"] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="h-full w-1/2 bg-primary/60"
+                      />
+                    </div>
+                    <div className="text-[5px] font-mono opacity-50">BUFF_SIZE::0x244</div>
+                  </div>
                 </div>
-                <div className="text-[7px] opacity-40 font-bold tracking-tighter uppercase">STRLNK::ESTABLISHED</div>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-black tabular-nums leading-none">{time}</div>
-                <div className="text-xs opacity-60 tracking-[0.3em] mt-2 font-bold uppercase">INDEX::{activeSection}</div>
+
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-2 mb-1">
+                    <span className="text-[7px] font-black tracking-widest opacity-40">CHRONO::SYNC</span>
+                    <div className="size-1 bg-primary" />
+                  </div>
+                  <TimeDisplay />
+                  <div className="text-[5px] opacity-30 mt-1 tracking-tighter">OS_VERSION::BUN_ELYSIA_v3.2</div>
+                </div>
               </div>
             </header>
 
-            {/* --- MAIN MODULE ENGINE --- */}
+            {/* HUD: GAUGE */}
+            <ScrollGauge active={activeSection} />
+
+            {/* MAIN CONTENT ENGINE */}
             <div
               ref={setContainer}
               className="hide-scrollbar relative z-10 h-screen w-full snap-y snap-mandatory overflow-y-auto scroll-smooth"
             >
-              <section id="profile-module" className="h-screen w-full snap-start flex items-center justify-center p-4 md:p-10">
+              <section className="h-screen w-full snap-start flex items-center justify-center p-4">
                 <Profile />
               </section>
 
-              {/* TESTIMONIALS NOW IN MIDDLE */}
-              <section id="testimonials-module" className="h-screen w-full snap-start flex items-center justify-center p-4 md:p-10">
-                <TestimonialsNode />
+              <section className="h-screen w-full snap-start flex items-center justify-center p-4">
+                {/* Lazy Mount: Only render testimonials when on or near the page */}
+                {activeSection !== "CONTACT" && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                    <TestimonialsNode data={feedbacks} />
+                  </motion.div>
+                )}
               </section>
 
-              {/* CONTACT NOW AT END */}
-              <section id="contact-module" className="h-screen w-full snap-start flex items-center justify-center p-4 md:p-10">
+              <section className="h-screen w-full snap-start flex items-center justify-center p-4 overflow-hidden">
                 <ContactSection />
               </section>
             </div>
 
-            {/* --- HUD: NAVIGATION TRIGGER --- */}
-            <footer className="fixed bottom-0 inset-x-0 z-50 p-6 hidden md:flex flex-col items-center pointer-events-none">
-              <div className="group relative flex flex-col items-center pointer-events-auto">
-                <button onClick={handleNext} className="relative size-10 flex items-center justify-center rounded-full border border-primary/20 bg-background/50 backdrop-blur-md hover:bg-primary hover:text-background transition-all">
-                  {/* FIX: Target CONTACT for reboot animation */}
-                  <motion.div animate={{ rotate: activeSection === "CONTACT" ? 180 : 0 }}>
-                    <ArrowDown size={18} weight="bold" />
-                  </motion.div>
-                </button>
-                <span className="mt-2 text-[6px] tracking-[0.8em] opacity-30 font-black group-hover:opacity-100 transition-opacity">
-                  {/* FIX: Target CONTACT for text swap */}
-                  {activeSection === "CONTACT" ? "REBOOT_CYCLE" : "NEXT_MODULE"}
-                </span>
+            {/* HUD: FOOTER COMMAND MODULE */}
+            {/* HUD: FOOTER COMMAND MODULE */}
+            <footer className="fixed bottom-6 md:bottom-10 inset-x-0 md:inset-x-auto md:right-10 z-50 flex flex-col items-center md:items-end pointer-events-none select-none px-6">
+              <div className="group relative flex flex-col items-center md:items-end pointer-events-auto">
+
+                {/* 1. COMMAND TOOLTIP (Right-Aligned Legend) */}
+                <div className="absolute bottom-full mb-5 flex flex-col items-center md:items-end opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                  <div className="relative p-2 bg-background/95 backdrop-blur-2xl border border-primary/20 flex flex-col gap-2 shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)] min-w-[120px]">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-[5px] tracking-[0.3em] font-black opacity-30 uppercase">Manual_Override</span>
+                      <div className="size-1 bg-primary animate-pulse" />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[6px] tracking-widest opacity-50">KBD_INPUT</span>
+                        <kbd className="px-1 border border-primary/40 rounded-[2px] text-[7px] font-mono bg-primary/5">↑↓</kbd>
+                      </div>
+                      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[6px] tracking-widest opacity-50">HAPTIC_THRUST</span>
+                        <kbd className="px-1 border border-primary/40 rounded-[2px] text-[7px] font-mono bg-primary/5">SCRL</kbd>
+                      </div>
+                    </div>
+
+                    {/* Right-aligned connecting stem */}
+                    <div className="absolute top-full right-4 w-[1px] h-4 bg-primary/20" />
+                  </div>
+                </div>
+
+                {/* 2. THE MECHANICAL BUTTON HOUSING */}
+                <div className="relative p-1 border border-primary/10 rounded-sm">
+                  {/* Outer Brackets (Static) */}
+                  <div className="absolute -top-1 -left-1 size-2 border-t border-l border-primary/40" />
+                  <div className="absolute -bottom-1 -right-1 size-2 border-b border-r border-primary/40" />
+
+                  <button
+                    onClick={() => smoothScrollTo((SECTIONS.indexOf(activeSection) + 1) % 3)}
+                    className="relative size-10 flex items-center justify-center bg-background/60 backdrop-blur-md border border-primary/40 hover:border-primary transition-all duration-300 group/btn overflow-hidden"
+                  >
+                    {/* Animated Scanning Line */}
+                    <motion.div
+                      animate={{ top: ["-10%", "110%"] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-x-0 h-[1px] bg-primary/20 z-0"
+                    />
+
+                    {/* Hover Invert Effect */}
+                    <div className="absolute inset-0 bg-primary scale-x-0 group-hover/btn:scale-x-100 transition-transform duration-500 origin-left" />
+
+                    <motion.div
+                      animate={{ rotate: activeSection === "CONTACT" ? 180 : 0 }}
+                      className="relative z-10 group-hover/btn:text-background transition-colors duration-300"
+                    >
+                      <ArrowDown size={16} />
+                    </motion.div>
+                  </button>
+                </div>
+
+                {/* 3. DYNAMIC DATA STRIP */}
+                <div className="mt-3 flex flex-col items-center md:items-end gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[5px] tracking-[0.5em] font-black uppercase text-primary/80">
+                      {activeSection === "CONTACT" ? "EXEC::REBOOT" : "EXEC::NEXT_MOD"}
+                    </span>
+                    <div className="flex gap-0.5">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className={`size-0.5 rounded-full ${i === SECTIONS.indexOf(activeSection) ? 'bg-primary' : 'bg-primary/20'}`} />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bitrate decoration */}
+                  <div className="h-[1px] w-20 bg-gradient-to-l from-primary/40 to-transparent" />
+                  <span className="text-[4px] font-mono opacity-20 uppercase">Auth_Token::0xA1X_VALID</span>
+                </div>
               </div>
             </footer>
+
           </motion.div>
         )}
       </AnimatePresence>
 
-      <style jsx global>{`
+      <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::selection { background: rgba(var(--primary-rgb), 0.2); }
       `}</style>
     </div>
   )

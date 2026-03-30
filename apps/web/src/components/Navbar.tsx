@@ -163,7 +163,7 @@ const MobileDrawer = ({ currentPath, onNavigate, onClose, theme }: any) => (
           }}
           className="group flex flex-col items-start"
         >
-          <span className="mb-1 text-[10px] tracking-[0.4em] text-primary/20">
+          <span className="mb-1 text-[10px] tracking-[0.4em] text-primary/270">
             // {item.id}
           </span>
           <span
@@ -171,7 +171,7 @@ const MobileDrawer = ({ currentPath, onNavigate, onClose, theme }: any) => (
               "text-5xl font-black tracking-tighter uppercase transition-all",
               currentPath === item.path
                 ? "text-primary drop-shadow-[0_0_10px_var(--primary)]"
-                : "text-primary/30"
+                : "text-primary/80"
             )}
           >
             {item.name}
@@ -330,7 +330,7 @@ export const Navbar = () => {
                   "text-[10px] font-black tracking-[0.4em] transition-all",
                   location.pathname === item.path
                     ? "text-primary drop-shadow-[0_0_8px_var(--primary)]"
-                    : "text-primary/20 hover:text-primary/60"
+                    : "text-primary/60 hover:text-primary/80"
                 )}
               >
                 {item.name}
@@ -368,8 +368,10 @@ export const Navbar = () => {
                 )}
               </div>
             </button>
+            <div className="hidden md:flex">
 
-            <RecordingAperture className="hidden md:flex" />
+            <RecordingAperture  />
+</div>
 
             {/* Mobile Trigger with glow */}
             <button

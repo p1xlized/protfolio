@@ -1,0 +1,14 @@
+{
+  "name": "@portfolio/types",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
+  }
+}

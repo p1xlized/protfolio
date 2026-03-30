@@ -12,7 +12,7 @@
     "build": "tsc",
     "clean": "rm -rf dist node_modules .turbo",
     "generate": "bun with-env drizzle-kit generate",
-    "push": "bun with-env drizzle-kit push",
+    "push": "bun with-env drizzle-kit push --force",
     "seed": "bun with-env ./src/seed.ts",
     "studio": "bun with-env drizzle-kit studio",
     "typecheck": "tsc --noEmit",

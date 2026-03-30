@@ -1,25 +1,20 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import {
-  Archive,
-  Broadcast,
-  CaretDoubleRight,
-  Code,
-  CornersOut,
-  Envelope,
-  GithubLogo,
-  LinkedinLogo,
-  UserFocus,
+  Archive, Broadcast, CaretDoubleRight, Code, CornersOut,
+  Envelope, GithubLogo, LinkedinLogo, UserFocus
 } from "@phosphor-icons/react"
+import { Dialog, DialogContent, DialogTrigger } from "@portfolio/ui/components/ui/dialog"
 import { useNavigate } from "@tanstack/react-router"
 import { cn } from "@/lib/utils"
-import { Dialog, DialogContent, DialogTrigger } from "@portfolio/ui/components/ui/dialog"
-import ProfileDialog from "./Profile/ProfileDialog"
-import ActionButton from "./Profile/ActionButton"
 
-// --- TYPES & DATA ---
+// External Components
+import ActionButton from "./ActionButton"
+import ProfileDialog from "./ProfileDialog"
+
+// --- 1. CONSTANTS (Outside component to prevent re-allocation) ---
 const TITLES = ["FULL STACK", "BACKEND", "MOBILE", "GAMEDEV"]
 
 const UI_DATA = {
@@ -40,148 +35,55 @@ const UI_DATA = {
   stats: { records: 14, encryption: "BitLock_256" },
 }
 
-// --- SHARED DECORATIVE COMPONENTS ---
+// --- 2. ATOMIC COMPONENTS (Isolated Renders) ---
 
-const CornerMarkers = () => (
+const CornerMarkers = React.memo(() => (
   <>
     <div className="absolute top-0 left-0 h-1.5 w-1.5 border-t border-l border-primary/40" />
     <div className="absolute top-0 right-0 h-1.5 w-1.5 border-t border-r border-primary/40" />
     <div className="absolute bottom-0 left-0 h-1.5 w-1.5 border-b border-l border-primary/40" />
     <div className="absolute right-0 bottom-0 h-1.5 w-1.5 border-r border-b border-primary/40" />
   </>
-)
+))
 
+const TitleTicker = React.memo(() => {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => setIndex((p) => (p + 1) % TITLES.length), 3000)
+    return () => clearInterval(timer)
+  }, [])
 
-// --- SUB-COMPONENTS ---
-
-const HeaderSection = ({ titleIndex }: { titleIndex: number }) => (
-  <header className="relative mb-4 flex w-full flex-col overflow-hidden border-b border-primary/10 pb-4 md:flex-row md:items-center md:gap-6">
-    {/* --- AVATAR WITH HUD DECO --- */}
-    <Dialog>
-      <DialogTrigger>
-        <div className="group relative flex-none shrink-0 cursor-crosshair">
-          {/* Animated Outer Ring */}
-
-          <div className="relative size-16 overflow-hidden rounded-full border border-primary/40 bg-background sm:size-20 md:size-28">
-            <img
-              src={UI_DATA.profile.image}
-              alt={UI_DATA.profile.name}
-              className="size-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:rotate-1 group-hover:brightness-110"
-            />
-
-            {/* Scanline Overlay on Hover */}
-            <div className="absolute inset-0 z-10 hidden bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] group-hover:block" />
-          </div>
-
-          {/* Status Pip with Pulse */}
-          <div className="absolute right-1 bottom-1 z-20 size-3 rounded-full border-2 border-background bg-primary shadow-[0_0_10px_var(--primary)]" />
-        </div>
-      </DialogTrigger>
-      <DialogContent className="max-w-5xl w-full border-none bg-transparent p-0 shadow-none">
-        <ProfileDialog />
-      </DialogContent>
-    </Dialog>
-
-    {/* --- IDENTITY SECTION --- */}
-    <div className="flex min-w-0 flex-1 flex-col justify-center py-2 md:py-0">
-      <div className="mb-1 flex items-center gap-3">
-        <div className="flex items-center gap-1">
-          <div className="h-1 w-1 bg-primary animate-pulse" />
-          <span className="text-[7px] font-bold tracking-[0.4em] text-primary uppercase">
-            Auth_Status: Verified
-          </span>
-        </div>
-        <div className="h-[1px] flex-1 bg-primary/10" />
-      </div>
-
-      <motion.h1
-        className="w-full truncate text-3xl leading-none font-mono tracking-tighter text-foreground sm:text-4xl md:text-6xl"
-        /* Pro-tip: Since font-display (JetBrains) is smoother,
-           use font-black (900) to give it that "Heavy Industrial"
-           contrast against the thinner Departure Mono UI elements.
-        */
-      >
-        {UI_DATA.profile.name}
-      </motion.h1>
-
-      <div className="mt-2 flex items-center gap-2">
-        <div className="flex h-5 items-center border-l-2 border-primary bg-primary/10 px-3">
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={TITLES[titleIndex]}
-              initial={{ opacity: 0, x: -5 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 5 }}
-              transition={{ duration: 0.2 }}
-              className="text-[10px] font-bold tracking-[0.5em] text-foreground uppercase"
-            >
-              {TITLES[titleIndex]}
-            </motion.span>
-          </AnimatePresence>
-        </div>
-        <span className="text-[6px] text-muted-foreground/40 font-mono">SYS_V.2.0.6</span>
-      </div>
-    </div>
-
-    {/* --- SOCIAL UPLINKS --- */}
-    <div className="flex flex-none shrink-0 items-center gap-3 border-t border-primary/10 pt-4 md:flex-col md:items-end md:justify-center md:border-t-0 md:border-l md:pt-0 md:pl-6">
-      <div className="hidden flex-col items-end gap-0.5 md:flex">
-        <span className="text-[6px] tracking-widest text-primary/40 uppercase font-mono">
-          Packet_Stream
-        </span>
-        <div className="flex gap-0.5">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-1 w-2 bg-primary/10 group-hover:bg-primary/30 transition-colors" />
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        {UI_DATA.socials.map((social) => (
-          <a
-            key={social.id}
-            href={social.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group/icon relative flex size-10 items-center justify-center border border-primary/20 bg-background/40 text-foreground transition-all duration-150 hover:border-primary hover:bg-primary/20 hover:-translate-y-0.5"
+  return (
+    <div className="flex items-center gap-4">
+      <div className="h-4 flex items-center bg-primary px-2">
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={TITLES[index]}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="text-[10px] font-black tracking-[0.2em] text-background uppercase"
           >
-            {/* HUD Corner Brackets */}
-            <div className="absolute top-0 left-0 size-1 border-t border-l border-primary opacity-0 transition-all group-hover/icon:opacity-100" />
-            <div className="absolute right-0 bottom-0 size-1 border-r border-b border-primary opacity-0 transition-all group-hover/icon:opacity-100" />
-
-            <div className="relative z-10 transition-transform group-hover/icon:scale-110">
-              {React.cloneElement(social.icon as React.ReactElement, {
-                size: 20,
-                weight: "thin",
-                className: "group-hover/icon:text-primary transition-colors"
-              })}
-            </div>
-
-            {/* Label Tooltip (Optional visual fluff) */}
-            <span className="absolute -bottom-5 scale-0 font-mono text-[5px] text-primary transition-all group-hover/icon:scale-100 uppercase">
-              {social.id}
-            </span>
-          </a>
-        ))}
+            {TITLES[index]}
+          </motion.span>
+        </AnimatePresence>
       </div>
+      <span className="text-[7px] font-mono text-primary/40 tabular-nums">SEGMENT_0{index + 1}</span>
     </div>
-  </header>
-)
+  )
+})
 
-// --- NEW: REUSABLE SCHEMATIC COMPONENT ---
-const SchematicGrid = () => (
+const SchematicGrid = React.memo(() => (
   <motion.svg
     viewBox="0 0 100 100"
     className="h-full w-full text-primary"
+    style={{ willChange: "transform" }}
     animate={{ rotate: -360 }}
     transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
   >
-    {/* Concentric Calibration Rings */}
     <circle cx="50" cy="50" r="10" fill="none" stroke="currentColor" strokeWidth="0.1" strokeDasharray="1 2" />
     <circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" strokeWidth="0.2" strokeDasharray="4 2" />
     <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.1" />
-
-    {/* Rotating "Radar" Sector */}
     <motion.path
       d="M 50 50 L 50 5 a 45 45 0 0 1 31.8 13.2 z"
       fill="currentColor"
@@ -189,26 +91,10 @@ const SchematicGrid = () => (
       animate={{ opacity: [0.1, 0.3, 0.1] }}
       transition={{ duration: 4, repeat: Infinity }}
     />
-
-    {/* Crosshair Axes */}
-    <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeWidth="0.05" opacity="0.5" />
-    <line x1="50" y1="0" x2="50" y2="100" stroke="currentColor" strokeWidth="0.05" opacity="0.5" />
-
-    {/* Data Bit Markers */}
-    {[...Array(12)].map((_, i) => (
-      <rect
-        key={i}
-        x="49"
-        y="2"
-        width="2"
-        height="0.5"
-        fill="currentColor"
-        transform={`rotate(${i * 30} 50 50)`}
-      />
-    ))}
   </motion.svg>
-)
+))
 
+// --- 3. MODULES ---
 const BioModule = () => (
   <div
     className="group relative flex-[1.4] overflow-hidden border border-primary/20 bg-card/40 p-5 transition-all duration-500 hover:border-primary hover:bg-primary/[0.04]"
@@ -310,17 +196,67 @@ const BioModule = () => (
     </div>
   </div>
 )
+const HeaderSection = React.memo(() => (
+  <header className="relative flex w-full flex-row items-center gap-6 bg-background/20 border-2 border-primary/20 p-4 h-24 md:h-28 overflow-hidden">
+    <Dialog>
+      <DialogTrigger asChild>
+        <div className="group relative size-16 shrink-0 cursor-crosshair sm:size-20 md:size-24 transition-transform duration-300 hover:scale-[1.02]">
+          <div className="absolute inset-[-6px] rounded-full border border-primary/10" />
+          <div className="absolute inset-[-3px] rounded-full border-t-2 border-l-2 border-primary/40 group-hover:border-primary transition-colors" />
+          <div className="relative size-full overflow-hidden rounded-full border-2 border-primary/30 bg-background transition-all group-hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)]">
+            <img src={UI_DATA.profile.image} alt="Profile" className="size-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" />
+          </div>
+          <div className="absolute right-0.5 bottom-0.5 z-20 size-3.5 rounded-full border-2 border-background bg-primary" />
+        </div>
+      </DialogTrigger>
+      <DialogContent className="max-w-5xl w-full border-none bg-transparent p-0 shadow-none">
+        <ProfileDialog />
+      </DialogContent>
+    </Dialog>
+
+    <div className="flex flex-1 flex-col justify-center min-w-0">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-[7px] font-black tracking-[0.6em] text-primary/70 uppercase">User_Identity</span>
+        <div className="h-[1px] w-12 bg-primary/20" />
+      </div>
+      <div className="flex flex-col md:flex-row md:items-end gap-0 md:gap-3 leading-none">
+        <h1 className="font-mono text-3xl font-black tracking-tighter text-transparent sm:text-4xl md:text-6xl uppercase" style={{ WebkitTextStroke: '1px var(--primary)' }}>
+          {UI_DATA.profile.name.split(' ')[0]}
+        </h1>
+        <h1 className="font-mono text-3xl font-black tracking-tighter text-primary sm:text-4xl md:text-6xl uppercase">
+          {UI_DATA.profile.name.split(' ')[1]}
+        </h1>
+      </div>
+      <div className="mt-2">
+        <TitleTicker />
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-1 md:flex-row md:gap-2">
+      {UI_DATA.socials.map((social) => (
+        <a key={social.id} href={social.link} target="_blank" className="group relative flex size-8 items-center justify-center border-2 border-primary/20 transition-all hover:bg-primary sm:size-9 md:size-10">
+          <div className="relative z-10 text-primary transition-colors group-hover:text-background">{social.icon}</div>
+          <div className="absolute bottom-0 left-0 h-0 w-full bg-primary transition-all group-hover:h-full" />
+        </a>
+      ))}
+    </div>
+  </header>
+))
+
+
+
+
 
 const ProjectsModule = ({ onClick }: { onClick: () => void }) => (
   <motion.button
             onClick={onClick}
             whileHover={{ scale: 0.995 }}
-            className="group relative col-span-12 flex min-h-[500px] flex-col justify-between overflow-hidden border-2 border-primary/20 bg-card/40 p-12 text-left transition-all hover:border-primary lg:col-span-7"
+            className="group relative col-span-12 flex min-h-125 flex-col justify-between overflow-hidden border-2 border-primary/20 bg-card/40 p-12 text-left transition-all hover:border-primary lg:col-span-7"
           >
             {/* --- 1. BACKGROUND ANIMATIONS (Planet & Grid) --- */}
 
             {/* High-Density Wireframe Planet */}
-            <div className="absolute top-1/2 left-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 opacity-[0.08] transition-opacity duration-700 group-hover:opacity-20">
+            <div className="absolute top-1/2 left-1/2 -z-10 h-150 w-150 -translate-x-1/2 -translate-y-1/2 opacity-[0.08] transition-opacity duration-700 group-hover:opacity-20">
               <motion.svg
                 viewBox="0 0 100 100"
                 className="h-full w-full text-primary"
@@ -410,7 +346,7 @@ const ProjectsModule = ({ onClick }: { onClick: () => void }) => (
             </div>
 
             {/* Background Matrix Grid Overlay */}
-            <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,theme(colors.primary.DEFAULT/0.05)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.primary.DEFAULT/0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
+            <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,--theme(--color-primary/0.05)_1px,transparent_1px),linear-gradient(to_bottom,--theme(--color-primary/0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
             {/* --- 2. DECORATIONS --- */}
 
@@ -458,7 +394,7 @@ const ProjectsModule = ({ onClick }: { onClick: () => void }) => (
             <div className="relative z-20">
               <div className="mb-2 flex items-center gap-4">
                 <span className="text-[10px] text-primary/30">01</span>
-                <div className="h-[1px] w-8 bg-primary/20" />
+                <div className="h-px w-8 bg-primary/20" />
               </div>
               <motion.h2
                 className="mb-2 text-4xl tracking-tighter uppercase transition-all group-hover:text-primary sm:text-6xl"
@@ -515,32 +451,8 @@ const ProjectsModule = ({ onClick }: { onClick: () => void }) => (
 
 // --- MAIN VIEWS ---
 
-const DesktopView = () => {
-  const navigate = useNavigate()
-  const [index, setIndex] = useState(0)
 
-  useEffect(() => {
-    const timer = setInterval(() => setIndex((prev) => (prev + 1) % TITLES.length), 3000)
-    return () => clearInterval(timer)
-  }, [])
-
-  return (
-    <div className="relative mt-4 flex h-full w-full max-w-5xl flex-col gap-3 border border-primary/20 bg-background/60 p-8 shadow-xs">
-      <HeaderSection titleIndex={index} />
-      <div className="mt-4 grid h-[520px] grid-cols-12 gap-3">
-        <div className="col-span-12 flex flex-col gap-3 md:col-span-5">
-          <BioModule />
-          <div className="flex flex-1 gap-4">
-            <ActionButton label="Blog" icon={Archive} sublabel="Index_Status: 0x00" onClick={() => console.log("clicked")} variant="blog" />
-            <ActionButton label="Music" icon={Broadcast} sublabel="Stereo_Uplink" onClick={() => navigate({ to: "/music" })} variant="music" />
-          </div>
-        </div>
-        <ProjectsModule onClick={() => navigate({ to: "/projects" })} />
-      </div>
-    </div>
-  )
-}
-
+// --- 4. MAIN VIEWS ---
 const MobileView = () => {
   const navigate = useNavigate()
 
@@ -651,18 +563,41 @@ const MobileView = () => {
   )
 }
 
+const DesktopView = React.memo(() => {
+  const navigate = useNavigate()
+  return (
+    <div className="relative mt-4 flex h-full w-full max-w-5xl flex-col gap-3 p-8">
+      <HeaderSection />
+      <div className="mt-4 grid h-130 grid-cols-12 gap-3">
+        <div className="col-span-12 flex flex-col gap-3 md:col-span-5">
+            <BioModule />
+          <div className="flex flex-1 gap-4">
+            <ActionButton label="Blog" icon={Archive} sublabel="Index_Status: 0x00" onClick={() => {}} variant="blog" />
+            <ActionButton label="Music" icon={Broadcast} sublabel="Stereo_Uplink" onClick={() => navigate({ to: "/albums" })} variant="music" />
+          </div>
+        </div>
+        <ProjectsModule onClick={() => navigate({ to: "/projects" })} />
+      </div>
+    </div>
+  )
+})
+
+// --- 5. ENTRY POINT ---
+
 export default function Profile() {
-  const [screen, setScreen] = useState<"desktop" | "mobile">("desktop")
+  const [isDesktop, setIsDesktop] = useState(true)
 
   useEffect(() => {
-    const update = () => setScreen(window.innerWidth >= 1024 ? "desktop" : "mobile")
-    update(); window.addEventListener("resize", update)
-    return () => window.removeEventListener("resize", update)
+    const mediaQuery = window.matchMedia("(min-width: 1024px)")
+    setIsDesktop(mediaQuery.matches)
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mediaQuery.addEventListener("change", handler)
+    return () => mediaQuery.removeEventListener("change", handler)
   }, [])
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center text-foreground selection:bg-primary selection:text-background">
-      {screen === "desktop" ? <DesktopView /> : <MobileView />}
+    <div className="flex min-h-screen w-full items-center justify-center text-foreground selection:bg-primary/20">
+      {isDesktop ? <DesktopView /> : <MobileView />}
     </div>
   )
 }

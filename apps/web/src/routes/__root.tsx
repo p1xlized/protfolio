@@ -5,8 +5,17 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import appCss from '../styles.css?url'
 import Navbar from "@/components/Navbar"
 import { CustomCursor } from "@/components/Coursor"
+import { fetchSystemData, systemStore } from "@/lib/data.store"
 
 export const Route = createRootRoute({
+  beforeLoad: async () => {
+      // This populates the store before the component tree even mounts
+      await fetchSystemData()
+  },
+  loader: async () => {
+      await fetchSystemData();
+      return { initialized: true };
+    },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -19,6 +28,8 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+
+
   return (
     <html lang="en">
       <head>
@@ -26,16 +37,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       {/* Added cursor-none here to hide the system pointer everywhere */}
       <body className="md:cursor-none">
-
-
         <CustomCursor />
-
-
         <Navbar />
         {children}
 
         <TanStackDevtools
-          config={{ position: "bottom-right" }}
+          config={{ position: "bottom-left" }}
           plugins={[
             {
               name: "Tanstack Router",
