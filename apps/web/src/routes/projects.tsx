@@ -35,6 +35,7 @@ export default function ProjectsPage() {
 
   const projects = useStore(systemStore, (state) => state.projects)
   console.log("Projects in store:", projects);
+
   useEffect(() => {
     const updateTime = () => setTime(new Date().toLocaleTimeString("en-GB", { hour12: false }));
     updateTime();
